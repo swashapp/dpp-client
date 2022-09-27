@@ -1,15 +1,25 @@
-import { Request, URI } from './request-service';
-import { AuthConfig, DataProductDto, DataRequestDto } from './types';
+import {
+  AuthTokenConfig,
+  AuthWalletConfig,
+  AuthWeb3Config,
+  DataProductDto,
+  DataRequestDto,
+  dppClientOptions,
+} from './types';
+import { Request, TokenRequest, URI, WalletRequest, Web3Request } from './service';
 
 export class DataProviderClient {
   private request: Request;
 
-  constructor(config: AuthConfig) {
-    this.request = new Request(config);
-  }
-
-  public sign(): Promise<{ wallet: string; signature: string }> {
-    return this.request.sign();
+  constructor(config: {
+    auth: AuthTokenConfig | AuthWeb3Config | AuthWalletConfig;
+    options?: dppClientOptions;
+  }) {
+    const auth: any = config.auth;
+    const options = config.options;
+    if (auth.token) this.request = new TokenRequest(auth, options);
+    else if (auth.web3) this.request = new Web3Request(auth, options);
+    else if (auth.privateKey) this.request = new WalletRequest(auth, options);
   }
 
   public sendRequest(dataRequestDto: DataRequestDto): Promise<DataRequestDto> {

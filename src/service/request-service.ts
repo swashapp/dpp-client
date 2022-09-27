@@ -1,11 +1,10 @@
 import fetch from 'cross-fetch';
-import * as jwt from 'jsonwebtoken';
-import Web3 from 'web3';
 
-import { AuthConfig } from './types';
-
+import { dppClientOptions } from '../types';
 export enum URI {
-  DATA_REQUEST = '/data-request/',
+  DATA_REQUEST='/v2/data-request',
+  SIGNATURE = 'public/signature',
+  LOG = 'log',
 }
 
 export function encodeQueryString(params: {
@@ -16,86 +15,46 @@ export function encodeQueryString(params: {
     .join('&');
 }
 
-async function signMessage(
-  web3: Web3,
-  user?: {
-    wallet: string;
-    nonce: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-  },
-): Promise<{ wallet: string; signature: string }> {
-  if (!user) throw Error('No Such User Found.');
-  const isMetaMask =
-    web3 && web3.currentProvider && (web3.currentProvider as any).isMetaMask;
-  let sign = web3?.eth.sign;
-  if (isMetaMask)
-    sign = (
-      dataToSign: string,
-      address: string,
-      callback?: (error: Error, signature: string) => void,
-    ): Promise<string> =>
-      web3?.eth.personal.sign(dataToSign, address, '', callback);
-  return await new Promise((resolve, reject) => {
-    sign(
-      web3?.utils.fromUtf8(`I am signing my one-time nonce: ${user.nonce}`),
-      user?.wallet || '',
-      (err: any, signature: string) => {
-        if (err) reject(err);
-        resolve({ ...user, signature });
-      },
-    );
-  });
-}
+export const MESSAGE_TO_SIGN_PREFIX = 'I am signing my one-time nonce';
 
-export class Request {
-  private config: AuthConfig;
+export abstract class Request {
+  private options?: dppClientOptions;
+  private onExpired?: () => void;
 
-  constructor(config: AuthConfig) {
-    this.config = config;
+  constructor(options?: dppClientOptions, onExpired?: () => void) {
+    this.options = options;
+    this.onExpired = onExpired;
   }
 
   private getServerApiURL = (): string =>
-    `${this.config.serverURL || 'http://swash.scompute'}/v2/`;
+    `${this.options?.host || 'https://swash.dpp-client'}/v2/`;
 
-  public async sign(): Promise<{ wallet: string; signature: string }> {
-    const web3 = this.config.provider.web3;
-    const accounts = await web3.eth.getAccounts();
+  private getServicesApiURL = (): string =>
+    `${this.options?.servicesHost || 'https://api.swashapp.io'}/v2/`;
+
+  protected async signWith(
+    signMessage: (
+      nonce: number,
+    ) => Promise<{ wallet: string; signature: string; nonce: number }>,
+  ): Promise<{
+    wallet: string;
+    signature: string;
+    nonce: number;
+  }> {
     return await this.call(
-      `${this.getServerApiURL()}${URI.USER}?wallet=${accounts[0].toString()}`,
+      `${this.getServicesApiURL()}${URI.SIGNATURE}/nonce`,
       {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       },
-    ).then(
-      (user?: {
-        wallet: string;
-        nonce: string;
-        email: string;
-        first_name: string;
-        last_name: string;
-      }) => signMessage(web3, user),
-    );
+    ).then(signMessage);
   }
 
-  private async getToken(): Promise<string> {
-    let token = '';
-    if (this.config.session && this.config.session.token)
-      token = this.config.session.token;
-    else if (this.config.provider && this.config.provider.web3) {
-      const signatureObj = await this.sign();
-      token = jwt.sign(
-        { wallet: signatureObj.wallet, signature: signatureObj.signature },
-        'shhhhh',
-      );
-    }
-    return token;
-  }
+  abstract getToken(): Promise<string>;
 
-  private async createRequest(method = 'GET'): Promise<RequestInit> {
+  protected async createRequest(method = 'GET'): Promise<RequestInit> {
     const token = await this.getToken();
     return {
       method: method,
@@ -106,7 +65,7 @@ export class Request {
     };
   }
 
-  private async call<Type>(url: string, req: any): Promise<Type> {
+  protected async call<Type>(url: string, req: any): Promise<Type> {
     let message = '';
 
     try {
@@ -119,8 +78,7 @@ export class Request {
         message = payload.message;
       }
       if (payload.status === 'expired') {
-        if (this.config.session && this.config.session.onExpired)
-          this.config.session.onExpired();
+        if (this.onExpired) this.onExpired();
         throw Error(`Session is expired`);
       }
     } catch (err) {
@@ -176,4 +134,5 @@ export class Request {
     if (body) req = { ...req, body: form };
     return this.call<Type>(url, req);
   }
+
 }

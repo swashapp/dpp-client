@@ -1,5 +1,21 @@
 import Web3 from 'web3';
 
+export interface AuthWalletConfig {
+  privateKey: string;
+  rpcUrl?: string;
+}
+
+export interface AuthWeb3Config {
+  web3: Web3;
+}
+export interface AuthTokenConfig {
+  token: string;
+  onExpired: () => void;
+}
+export interface dppClientOptions {
+  host?: string;
+  servicesHost?: string;
+}
 export class DataDictionaryDto {
   id: string;
   name: string;

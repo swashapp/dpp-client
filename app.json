@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name": "scomp-v2",
+      "name": "dpp-v2",
       "script": "dist/main.js",
       "instances": "max",
       "exec_mode": "cluster",
