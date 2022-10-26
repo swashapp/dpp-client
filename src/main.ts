@@ -4,9 +4,9 @@ import {
   AuthWeb3Config,
   DataProductDto,
   DataRequestDto,
-  dppClientOptions,
+  dppClientOptions, SignatureOBJ,
 } from './types';
-import { Request, TokenRequest, URI, WalletRequest, Web3Request } from './service';
+import { Request,  URI, WalletRequest, Web3Request } from './service';
 
 export class DataProviderClient {
   private request: Request;
@@ -17,9 +17,12 @@ export class DataProviderClient {
   }) {
     const auth: any = config.auth;
     const options = config.options;
-    if (auth.token) this.request = new TokenRequest(auth, options);
-    else if (auth.web3) this.request = new Web3Request(auth, options);
+    if (auth.web3) this.request = new Web3Request(auth, options);
     else if (auth.privateKey) this.request = new WalletRequest(auth, options);
+  }
+
+  public getSignature(): Promise<SignatureOBJ> {
+    return this.request.getSignatureObj();
   }
 
   public sendRequest(dataRequestDto: DataRequestDto): Promise<DataRequestDto> {

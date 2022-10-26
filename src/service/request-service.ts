@@ -1,8 +1,16 @@
 import fetch from 'cross-fetch';
+import { providers } from 'ethers';
+import FormData from 'form-data';
+import * as jwt from 'jsonwebtoken';
 
-import { dppClientOptions } from '../types';
+import {
+  AuthSessionConfig,
+  dppClientOptions,
+  SignatureOBJ,
+} from '../types';
+
 export enum URI {
-  DATA_REQUEST='/v2/data-request',
+  DATA_REQUEST='data-request',
   SIGNATURE = 'public/signature',
   LOG = 'log',
 }
@@ -19,28 +27,22 @@ export const MESSAGE_TO_SIGN_PREFIX = 'I am signing my one-time nonce';
 
 export abstract class Request {
   private options?: dppClientOptions;
-  private onExpired?: () => void;
+  private session?: AuthSessionConfig;
 
-  constructor(options?: dppClientOptions, onExpired?: () => void) {
+  constructor(session?: AuthSessionConfig, options?: dppClientOptions) {
+    this.session = session;
     this.options = options;
-    this.onExpired = onExpired;
   }
 
   private getServerApiURL = (): string =>
-    `${this.options?.host || 'https://swash.dpp-client'}/v2/`;
+    `${this.options?.host || 'https://dpp-client.swashapp.io'}/v2/`;
 
   private getServicesApiURL = (): string =>
     `${this.options?.servicesHost || 'https://api.swashapp.io'}/v2/`;
 
   protected async signWith(
-    signMessage: (
-      nonce: number,
-    ) => Promise<{ wallet: string; signature: string; nonce: number }>,
-  ): Promise<{
-    wallet: string;
-    signature: string;
-    nonce: number;
-  }> {
+    signMessage: (nonce: number) => Promise<SignatureOBJ>,
+  ): Promise<SignatureOBJ> {
     return await this.call(
       `${this.getServicesApiURL()}${URI.SIGNATURE}/nonce`,
       {
@@ -52,10 +54,16 @@ export abstract class Request {
     ).then(signMessage);
   }
 
-  abstract getToken(): Promise<string>;
+  public abstract getSignatureObj(): Promise<SignatureOBJ>;
+  public abstract getProvider(): providers.BaseProvider;
+  public abstract getAccount(): Promise<string>;
 
   protected async createRequest(method = 'GET'): Promise<RequestInit> {
-    const token = await this.getToken();
+    let token = this.session?.token;
+    if (!token) {
+      const signatureObj = await this.getSignatureObj();
+      token = jwt.sign(signatureObj, 'shhhhh');
+    }
     return {
       method: method,
       headers: {
@@ -78,7 +86,7 @@ export abstract class Request {
         message = payload.message;
       }
       if (payload.status === 'expired') {
-        if (this.onExpired) this.onExpired();
+        if (this.session?.onExpired) this.session.onExpired();
         throw Error(`Session is expired`);
       }
     } catch (err) {
@@ -93,13 +101,18 @@ export abstract class Request {
     method: string,
     params?: any,
   ): Promise<Type> {
-    const url = this.getServerApiURL() + api;
-    let req: RequestInit = await this.createRequest(method);
-    let query = '';
-    if (['GET', 'DELETE'].includes(method))
-      query = params ? `?${encodeQueryString(params)}` : '';
-    else req = params ? { ...req, body: JSON.stringify(params) } : req;
-    return this.call<Type>(url + query, req);
+    try {
+      const url = this.getServerApiURL() + api;
+      let req: RequestInit = await this.createRequest(method);
+      let query = '';
+      if (['GET', 'DELETE'].includes(method))
+        query = params ? `?${encodeQueryString(params)}` : '';
+      else req = params ? { ...req, body: JSON.stringify(params) } : req;
+      return this.call<Type>(url + query, req);
+    }catch (e) {
+      console.log(e);
+      throw e;
+    }
   }
 
   public async GET<Type>(api: string, params?: any): Promise<Type> {
@@ -125,14 +138,17 @@ export abstract class Request {
     return await fetch(url, req);
   }
 
-  public async POSTForm<Type>(api: string, body?: any): Promise<Type> {
+  public async POSTFile<Type>(
+    api: string,
+    file: File | Buffer,
+    fileName: string,
+  ): Promise<Type> {
     let req: RequestInit = await this.createRequest('POST');
     delete req.headers['Content-Type'];
     const url = this.getServerApiURL() + api;
     const form = new FormData();
-    Object.keys(body).forEach((key) => form.append(key, body[key]));
-    if (body) req = { ...req, body: form };
+    form.append('file', file, fileName);
+    req = { ...req, body: form as any };
     return this.call<Type>(url, req);
   }
-
 }

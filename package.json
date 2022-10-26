@@ -47,7 +47,10 @@
     "ts-loader": "^8.0.17",
     "ts-node": "^9.1.1",
     "tsconfig-paths": "^3.9.0",
-    "typescript": "^4.1.5"
+    "typescript": "^4.1.5",
+    "@uniswap/router-sdk": "1.0.5",
+    "@uniswap/v2-sdk": "github:swashapp/v2-sdk#c9b85f07a7dab046625c78789302d527819401cf",
+    "swash-order-router": "github:swashapp/smart-order-router#3bf441508bb21167b2a864075bce763b33ee02f1"
   },
   "jest": {
     "moduleFileExtensions": [

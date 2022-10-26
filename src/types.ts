@@ -1,17 +1,45 @@
 import Web3 from 'web3';
+export interface AuthSessionConfig {
+  token?: string;
+  onExpired?: () => void;
+}
+
+export interface SignatureOBJ {
+  address: string;
+  signature: string;
+  nonce: number;
+}
+
+export interface TokenInfo {
+  tokenName: string;
+  tokenAddress: string;
+  isNative: boolean;
+}
+
+export interface PurchaseToken {
+  tokenName: string;
+  tokenAddress: string;
+  neededTokenCount: string;
+  isNative: boolean;
+  routePath: string[];
+}
 
 export interface AuthWalletConfig {
   privateKey: string;
   rpcUrl?: string;
+  session?: AuthSessionConfig;
 }
 
 export interface AuthWeb3Config {
   web3: Web3;
+  session?: AuthSessionConfig;
 }
+
 export interface AuthTokenConfig {
   token: string;
   onExpired: () => void;
 }
+
 export interface dppClientOptions {
   host?: string;
   servicesHost?: string;
@@ -54,15 +82,13 @@ export interface RequestJobDto {
 }
 
 export interface DataRequestDto {
-  id: string;
+  id?: string;
   params: any;
   userAccountAddress: string;
   fileName: string;
-  savingDirectory?: string;
-  userAwsId: string;
   requestDate: number;
-  status: string;
-  requestJob: RequestJobDto;
+  status?: string;
+  requestJob?: RequestJobDto;
 }
 
 export type AuthConfig = {
@@ -74,5 +100,6 @@ export type AuthConfig = {
   provider: {
     web3: Web3;
   };
+
 };
 
