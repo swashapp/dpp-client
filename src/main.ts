@@ -4,9 +4,11 @@ import {
   AuthWeb3Config,
   DataProductDto,
   DataRequestDto,
-  dppClientOptions, SignatureOBJ,
+  dppClientOptions,
+  PurchaseConfig,
+  SignatureOBJ,
 } from './types';
-import { Request,  URI, WalletRequest, Web3Request } from './service';
+import { Purchase, Request, URI, WalletRequest, Web3Request } from './service';
 
 export class DataProviderClient {
   private request: Request;
@@ -25,8 +27,38 @@ export class DataProviderClient {
     return this.request.getSignatureObj();
   }
 
-  public sendRequest(dataRequestDto: DataRequestDto): Promise<DataRequestDto> {
+  public saveDataRequest(dataRequestDto: DataRequestDto): Promise<DataRequestDto> {
     return this.request.POST(URI.DATA_REQUEST + '/add', dataRequestDto);
+  }
+
+  public async executeDataRequest(dataRequestDto: DataRequestDto,purchaseConfig: PurchaseConfig) {
+    try {
+      const provider = this.request.getProvider();
+      const signer = this.request.getSigner();
+      const account = await this.request.getAccount();
+      const purchase = new Purchase(
+        purchaseConfig.networkID,
+        provider,
+        signer,
+      );
+      const tokenInfo = await purchase.getInfoOf(purchaseConfig.tokenName);
+      await purchase.approve(tokenInfo, account);
+      const purchaseParam = {
+        requestHash: dataRequestDto.requestHash,
+        time: ''+dataRequestDto.requestDate,
+        productType: dataRequestDto.productType,
+        signature: dataRequestDto.signature,
+      };
+    const price:number=await this.getPrice(dataRequestDto);
+      const token=await purchase
+        .getToken(tokenInfo, price)
+      const tx = await purchase.request(purchaseParam, token);
+      if (tx) await tx.wait();
+      else throw Error('Failed to purchase');
+    } catch (err) {
+      console.log(err);
+      throw Error('Failed to purchase');
+    }
   }
 
   public getAllRequests(): Promise<Array<DataRequestDto>> {
@@ -39,6 +71,10 @@ export class DataProviderClient {
 
   public getRequestStatus(requestId:string): Promise<DataRequestDto> {
     return this.request.GET(URI.DATA_REQUEST + '/status',{id:requestId});
+  }
+
+  public getPrice(dataRequestDto: DataRequestDto): Promise<number> {
+    return this.request.POST(URI.DATA_REQUEST + 'calculate/price', dataRequestDto);
   }
 
   public getDownloadLink(requestId:string): Promise<DataRequestDto> {
