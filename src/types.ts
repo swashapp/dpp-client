@@ -1,4 +1,5 @@
 import Web3 from 'web3';
+
 export interface AuthSessionConfig {
   token?: string;
   onExpired?: () => void;
@@ -14,6 +15,7 @@ export interface TokenInfo {
   tokenName: string;
   tokenAddress: string;
   isNative: boolean;
+  isSwash: boolean;
 }
 
 export interface PurchaseToken {
@@ -44,6 +46,7 @@ export interface dppClientOptions {
   host?: string;
   servicesHost?: string;
 }
+
 export class DataDictionaryDto {
   id: string;
   name: string;
@@ -88,6 +91,9 @@ export interface DataRequestDto {
   fileName: string;
   requestDate: number;
   status?: string;
+  requestHash?: string;
+  signature?: string
+  productType?: string
   requestJob?: RequestJobDto;
 }
 
@@ -103,3 +109,7 @@ export type AuthConfig = {
 
 };
 
+export interface PurchaseConfig {
+  tokenName: string;
+  networkID: string;
+}

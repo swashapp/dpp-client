@@ -1,4 +1,4 @@
-import { providers } from 'ethers';
+import { providers, Signer } from 'ethers';
 import Web3 from 'web3';
 
 import { AuthWeb3Config, dppClientOptions, SignatureOBJ } from '../types';
@@ -36,10 +36,14 @@ async function web3SignMessage(
 
 export class Web3Request extends Request {
   private config: AuthWeb3Config;
+  private provider: providers.Web3Provider;
 
   constructor(config: AuthWeb3Config, options: dppClientOptions) {
     super(config.session, options);
     this.config = config;
+    this.provider = new providers.Web3Provider(
+      this.config.web3.currentProvider as any,
+    );
   }
 
   public async getSignatureObj(): Promise<SignatureOBJ> {
@@ -51,6 +55,10 @@ export class Web3Request extends Request {
 
   public getProvider(): providers.BaseProvider {
     return this.config.web3.givenProvider;
+  }
+
+  public getSigner(): Signer {
+    return this.provider.getSigner();
   }
 
   public async getAccount(): Promise<string> {

@@ -1,4 +1,4 @@
-import { getDefaultProvider, providers, Wallet } from 'ethers';
+import { getDefaultProvider, providers, Signer, Wallet } from 'ethers';
 
 import {
   AuthWalletConfig,
@@ -46,6 +46,10 @@ export class WalletRequest extends Request {
 
   public getProvider(): providers.BaseProvider {
     return this.provider;
+  }
+
+  public getSigner(): Signer {
+    return this.wallet;
   }
 
   public getAccount(): Promise<string> {

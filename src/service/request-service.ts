@@ -1,5 +1,5 @@
 import fetch from 'cross-fetch';
-import { providers } from 'ethers';
+import { providers, Signer } from 'ethers';
 import FormData from 'form-data';
 import * as jwt from 'jsonwebtoken';
 
@@ -57,6 +57,7 @@ export abstract class Request {
   public abstract getSignatureObj(): Promise<SignatureOBJ>;
   public abstract getProvider(): providers.BaseProvider;
   public abstract getAccount(): Promise<string>;
+  public abstract getSigner(): Signer;
 
   protected async createRequest(method = 'GET'): Promise<RequestInit> {
     let token = this.session?.token;

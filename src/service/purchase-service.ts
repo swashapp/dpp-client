@@ -1,16 +1,16 @@
 import { Contract } from '@ethersproject/contracts';
-import { formatEther, parseEther } from '@ethersproject/units';
+import { parseEther } from '@ethersproject/units';
 import { Protocol } from '@uniswap/router-sdk';
 import { Token, TradeType } from '@uniswap/sdk-core';
-import { providers } from 'ethers';
 
 import {
   AlphaRouter,
   CurrencyAmount,
   WRAPPED_NATIVE_CURRENCY,
-} from 'swash-order-router';
+} from '@uniswap/smart-order-router';
 
-import { SwapRoute } from 'swash-order-router/build/main/routers/router';
+import { SwapRoute } from '@uniswap/smart-order-router/build/main/routers/router';
+import { providers, Signer } from 'ethers';
 
 import { ERC20_ABI } from '../constants/erc20-abi';
 import { PURCHASE_ABI } from '../constants/purchase-abi';
@@ -24,16 +24,22 @@ export class Purchase {
   private purchaseContract: Contract;
   private networkID: string;
   private provider: providers.BaseProvider;
+  private signer: Signer;
 
   private SWASH_TOKEN: Token;
 
-  constructor(networkID: string, provider: providers.BaseProvider) {
+  constructor(
+    networkID: string,
+    provider: providers.BaseProvider,
+    signer: Signer,
+  ) {
     this.networkID = networkID;
     this.provider = provider;
+    this.signer = signer;
     this.purchaseContract = new Contract(
       PURCHASE_CONTRACT_ADDRESS[networkID],
       PURCHASE_ABI,
-      provider,
+      signer,
     );
     this.SWASH_TOKEN = new Token(
       Number(this.networkID),
@@ -46,10 +52,15 @@ export class Purchase {
 
   public async getInfoOf(tokenName: string): Promise<TokenInfo> {
     const tokenMap = await this.purchaseContract.tokenMap(tokenName);
+    const tokenAddress = tokenMap[1];
+    const isSwash =
+      tokenAddress?.toLowerCase() ===
+      SWASH_TOKEN_ADDRESS[this.networkID].toLowerCase();
     return {
       tokenName: tokenMap[0],
-      tokenAddress: tokenMap[1],
+      tokenAddress,
       isNative: tokenMap[2],
+      isSwash,
     };
   }
 
@@ -60,7 +71,7 @@ export class Purchase {
     const tokenContract = new Contract(
       info.tokenAddress,
       ERC20_ABI,
-      this.provider,
+      this.signer,
     );
     const allowance = await tokenContract.allowance(
       account,
@@ -80,12 +91,14 @@ export class Purchase {
         const tokenContract = new Contract(
           info.tokenAddress,
           ERC20_ABI,
-          this.provider,
+          this.signer,
         );
-        return await tokenContract.approve(
+        const tx = await tokenContract.approve(
           PURCHASE_CONTRACT_ADDRESS[this.networkID],
           parseEther('999999999999'),
         );
+        if (tx) await tx.wait();
+        else throw Error('Failed to approve');
       }
     }
   }
@@ -94,34 +107,39 @@ export class Purchase {
     info: TokenInfo,
     priceInDoller: number,
   ): Promise<PurchaseToken> {
-    const tokenPath = await this.getRoutePath(info, priceInDoller);
-
-    const priceList = await this.purchaseContract.convertPrice(
+    const priceInSwash = await this.purchaseContract.priceInSwash(
       parseEther(priceInDoller.toString()),
-      [info.tokenName],
-      [tokenPath],
     );
+    const tokenPath = await this.getRoutePath(info, priceInSwash);
+    let neededTokenCount = priceInSwash;
+    if (!info.isSwash) {
+      const priceList = await this.purchaseContract.convertPrice(
+        parseEther(priceInDoller.toString()),
+        [info.tokenName],
+        [tokenPath],
+      );
 
-    const priceEl = priceList.find(
-      (el) => el.tokenAddress.toLowerCase() === info.tokenAddress.toLowerCase(),
-    );
-    if (!priceEl) throw new Error('Price info not found.');
+      const priceEl = priceList.find(
+        (el) =>
+          el.tokenName.toLowerCase() === info.tokenName.toLowerCase() ||
+          el.tokenAddress.toLowerCase() === info.tokenAddress.toLowerCase(),
+      );
+      if (!priceEl) throw new Error('Price info not found.');
+      neededTokenCount = priceEl.price;
+    }
 
     return {
       ...info,
-      neededTokenCount: formatEther(priceEl.price),
+      neededTokenCount,
       routePath: tokenPath,
     };
   }
 
   private async getRoutePath(
     info: TokenInfo,
-    priceInDoller: number,
+    priceInSwash: number,
   ): Promise<Array<string>> {
-    if (
-      info.tokenAddress.toLowerCase() ===
-      SWASH_TOKEN_ADDRESS[this.networkID].toLowerCase()
-    ) {
+    if (info.isSwash) {
       return [info.tokenAddress, info.tokenAddress];
     }
     let tokenOut = null;
@@ -153,9 +171,6 @@ export class Purchase {
     });
 
     const paths: Array<string> = [];
-    const priceInSwash = await this.purchaseContract.priceInSwash(
-      parseEther(priceInDoller.toString()),
-    );
     const amount = CurrencyAmount.fromRawAmount(this.SWASH_TOKEN, priceInSwash);
 
     // debugger
@@ -188,7 +203,7 @@ export class Purchase {
       return await this.purchaseContract.buyDataProductWithUniswapEth(
         params.requestHash,
         params.time,
-        parseEther(token.neededTokenCount),
+        token.neededTokenCount,
         params.productType,
         params.signature,
         token.routePath,
@@ -198,7 +213,7 @@ export class Purchase {
       return await this.purchaseContract.buyDataProductWithUniswapErc20(
         params.requestHash,
         params.time,
-        parseEther(token.neededTokenCount),
+        token.neededTokenCount,
         params.productType,
         params.signature,
         token.tokenName,
