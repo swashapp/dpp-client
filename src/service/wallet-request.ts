@@ -1,10 +1,6 @@
 import { getDefaultProvider, providers, Signer, Wallet } from 'ethers';
 
-import {
-  AuthWalletConfig,
-  dppClientOptions,
-  SignatureOBJ,
-} from '../types';
+import { AuthWalletConfig, dppClientOptions, SignatureOBJ } from '../types';
 
 import { MESSAGE_TO_SIGN_PREFIX, Request } from './request-service';
 

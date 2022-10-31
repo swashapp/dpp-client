@@ -3,14 +3,11 @@ import { providers, Signer } from 'ethers';
 import FormData from 'form-data';
 import * as jwt from 'jsonwebtoken';
 
-import {
-  AuthSessionConfig,
-  dppClientOptions,
-  SignatureOBJ,
-} from '../types';
+import { AuthSessionConfig, dppClientOptions, SignatureOBJ } from '../types';
 
 export enum URI {
-  DATA_REQUEST='data-request',
+  DATA_REQUEST = 'data-request',
+  ACCEPTED_VALUE = 'accepted-value',
   SIGNATURE = 'public/signature',
   LOG = 'log',
 }
@@ -110,7 +107,7 @@ export abstract class Request {
         query = params ? `?${encodeQueryString(params)}` : '';
       else req = params ? { ...req, body: JSON.stringify(params) } : req;
       return this.call<Type>(url + query, req);
-    }catch (e) {
+    } catch (e) {
       console.log(e);
       throw e;
     }

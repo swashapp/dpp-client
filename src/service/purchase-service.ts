@@ -3,14 +3,14 @@ import { parseEther } from '@ethersproject/units';
 import { Protocol } from '@uniswap/router-sdk';
 import { Token, TradeType } from '@uniswap/sdk-core';
 
+import { providers, Signer } from 'ethers';
 import {
   AlphaRouter,
   CurrencyAmount,
   WRAPPED_NATIVE_CURRENCY,
-} from '@uniswap/smart-order-router';
+} from 'swash-order-router';
 
-import { SwapRoute } from '@uniswap/smart-order-router/build/main/routers/router';
-import { providers, Signer } from 'ethers';
+import { SwapRoute } from 'swash-order-router/build/main/routers/router';
 
 import { ERC20_ABI } from '../constants/erc20-abi';
 import { PURCHASE_ABI } from '../constants/purchase-abi';
@@ -18,7 +18,7 @@ import {
   PURCHASE_CONTRACT_ADDRESS,
   SWASH_TOKEN_ADDRESS,
 } from '../constants/purchase-config';
-import { PurchaseToken, TokenInfo } from '../types';
+import { TokenInfo } from '../types';
 
 export class Purchase {
   private purchaseContract: Contract;
@@ -50,7 +50,7 @@ export class Purchase {
     );
   }
 
-  public async getInfoOf(tokenName: string): Promise<TokenInfo> {
+  public async getToken(tokenName: string): Promise<TokenInfo> {
     const tokenMap = await this.purchaseContract.tokenMap(tokenName);
     const tokenAddress = tokenMap[1];
     const isSwash =
@@ -65,11 +65,11 @@ export class Purchase {
   }
 
   private async needToBeApproved(
-    info: TokenInfo,
+    token: TokenInfo,
     account: string | null | undefined,
   ): Promise<boolean> {
     const tokenContract = new Contract(
-      info.tokenAddress,
+      token.tokenAddress,
       ERC20_ABI,
       this.signer,
     );
@@ -82,14 +82,14 @@ export class Purchase {
   }
 
   public async approve(
-    info: TokenInfo,
+    token: TokenInfo,
     account: string | null | undefined,
   ): Promise<any> {
-    if (!info.isNative) {
-      const needToBeApproved = await this.needToBeApproved(info, account);
+    if (!token.isNative) {
+      const needToBeApproved = await this.needToBeApproved(token, account);
       if (needToBeApproved) {
         const tokenContract = new Contract(
-          info.tokenAddress,
+          token.tokenAddress,
           ERC20_ABI,
           this.signer,
         );
@@ -103,52 +103,23 @@ export class Purchase {
     }
   }
 
-  public async getToken(
-    info: TokenInfo,
+  private async getRoutePath(
+    token: TokenInfo,
     priceInDoller: number,
-  ): Promise<PurchaseToken> {
+  ): Promise<Array<string>> {
     const priceInSwash = await this.purchaseContract.priceInSwash(
       parseEther(priceInDoller.toString()),
     );
-    const tokenPath = await this.getRoutePath(info, priceInSwash);
-    let neededTokenCount = priceInSwash;
-    if (!info.isSwash) {
-      const priceList = await this.purchaseContract.convertPrice(
-        parseEther(priceInDoller.toString()),
-        [info.tokenName],
-        [tokenPath],
-      );
-
-      const priceEl = priceList.find(
-        (el) =>
-          el.tokenName.toLowerCase() === info.tokenName.toLowerCase() ||
-          el.tokenAddress.toLowerCase() === info.tokenAddress.toLowerCase(),
-      );
-      if (!priceEl) throw new Error('Price info not found.');
-      neededTokenCount = priceEl.price;
-    }
-
-    return {
-      ...info,
-      neededTokenCount,
-      routePath: tokenPath,
-    };
-  }
-
-  private async getRoutePath(
-    info: TokenInfo,
-    priceInSwash: number,
-  ): Promise<Array<string>> {
-    if (info.isSwash) {
-      return [info.tokenAddress, info.tokenAddress];
+    if (token.isSwash) {
+      return [token.tokenAddress, token.tokenAddress];
     }
     let tokenOut = null;
 
-    if (info.isNative) {
+    if (token.isNative) {
       tokenOut = WRAPPED_NATIVE_CURRENCY[Number(this.networkID)];
     } else {
       const tokenContract = new Contract(
-        info.tokenAddress,
+        token.tokenAddress,
         ERC20_ABI,
         this.provider,
       );
@@ -159,7 +130,7 @@ export class Purchase {
 
       tokenOut = new Token(
         Number(this.networkID),
-        info.tokenAddress,
+        token.tokenAddress,
         Number(tokenDecimals.toString()),
         tokenSymbol,
         tokenName,
@@ -196,28 +167,30 @@ export class Purchase {
       time: string;
       productType: string;
       signature: string;
+      price: number;
     },
-    token: PurchaseToken,
+    token: TokenInfo,
   ): Promise<any> {
+    const routePath = await this.getRoutePath(token, params.price);
     if (token.isNative) {
       return await this.purchaseContract.buyDataProductWithUniswapEth(
         params.requestHash,
         params.time,
-        token.neededTokenCount,
+        parseEther(params.price.toString()),
         params.productType,
         params.signature,
-        token.routePath,
+        routePath,
         { gasLimit: 5000000 },
       );
     } else {
       return await this.purchaseContract.buyDataProductWithUniswapErc20(
         params.requestHash,
         params.time,
-        token.neededTokenCount,
+        parseEther(params.price.toString()),
         params.productType,
         params.signature,
         token.tokenName,
-        token.routePath,
+        routePath,
         { gasLimit: 5000000 },
       );
     }

@@ -18,14 +18,6 @@ export interface TokenInfo {
   isSwash: boolean;
 }
 
-export interface PurchaseToken {
-  tokenName: string;
-  tokenAddress: string;
-  neededTokenCount: string;
-  isNative: boolean;
-  routePath: string[];
-}
-
 export interface AuthWalletConfig {
   privateKey: string;
   rpcUrl?: string;
@@ -92,9 +84,15 @@ export interface DataRequestDto {
   requestDate: number;
   status?: string;
   requestHash?: string;
-  signature?: string
-  productType?: string
+  signature?: string;
+  productType?: string;
   requestJob?: RequestJobDto;
+}
+
+export interface DataSaveRequestDto {
+  params: any;
+  fileName: string;
+  requestDate: number;
 }
 
 export type AuthConfig = {
@@ -106,7 +104,6 @@ export type AuthConfig = {
   provider: {
     web3: Web3;
   };
-
 };
 
 export interface PurchaseConfig {
