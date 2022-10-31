@@ -6,7 +6,7 @@ import {
   DataProductDto,
   DataRequestDto,
   DataSaveRequestDto,
-  dppClientOptions,
+  dppClientOptions, ExecuteDataRequestDto,
   PurchaseConfig,
   SignatureOBJ,
 } from './types';
@@ -39,7 +39,7 @@ export class DataProviderClient {
   }
 
   public async executeDataRequest(
-    dataRequestDto: DataRequestDto,
+    dataRequestDto: ExecuteDataRequestDto,
     purchaseConfig: PurchaseConfig,
   ): Promise<void> {
     const provider = this.request.getProvider();
@@ -48,12 +48,13 @@ export class DataProviderClient {
     const purchase = new Purchase(purchaseConfig.networkID, provider, signer);
     const token = await purchase.getToken(purchaseConfig.tokenName);
     await purchase.approve(token, account);
-    const price: number = await this.getPrice(dataRequestDto);
+    const price: number = await this.getPrice(dataRequestDto.id);
     const purchaseParam = {
       requestHash: dataRequestDto.requestHash,
       time: '' + dataRequestDto.requestDate,
       productType: dataRequestDto.productType,
       signature: dataRequestDto.signature,
+      signer:dataRequestDto.signer,
       price,
     };
     try {
@@ -82,16 +83,18 @@ export class DataProviderClient {
     return this.request.GET(URI.DATA_REQUEST + '/status', { id: requestId });
   }
 
-  public getPrice(dataRequestDto: DataRequestDto): Promise<number> {
+  public getPrice(requestId: string): Promise<number> {
     return this.request.POST(
       URI.DATA_REQUEST + '/calculate/price',
-      dataRequestDto,
+      {
+        id: requestId
+      },
     );
   }
 
-  public getDownloadLink(requestId: string): Promise<DataRequestDto> {
-    return this.request.GET(URI.DATA_REQUEST + '/download-link', {
-      id: requestId,
+  public downloadData(requestId: string): Promise<DataRequestDto> {
+    return this.request.GET(URI.DATA_REQUEST + '/download', {
+      id: requestId
     });
   }
 

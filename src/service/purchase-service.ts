@@ -18,7 +18,7 @@ import {
   PURCHASE_CONTRACT_ADDRESS,
   SWASH_TOKEN_ADDRESS,
 } from '../constants/purchase-config';
-import { TokenInfo } from '../types';
+import { PurchaseParams, TokenInfo } from '../types';
 
 export class Purchase {
   private purchaseContract: Contract;
@@ -161,34 +161,31 @@ export class Purchase {
     return paths;
   }
 
-  public async request(
-    params: {
-      requestHash: string;
-      time: string;
-      productType: string;
-      signature: string;
-      price: number;
-    },
-    token: TokenInfo,
-  ): Promise<any> {
+  public async request(params: PurchaseParams, token: TokenInfo): Promise<any> {
     const routePath = await this.getRoutePath(token, params.price);
     if (token.isNative) {
       return await this.purchaseContract.buyDataProductWithUniswapEth(
-        params.requestHash,
-        params.time,
-        parseEther(params.price.toString()),
-        params.productType,
+        {
+          requestHash: params.requestHash,
+          time: params.time,
+          price: parseEther(params.price.toString()),
+          productType: params.productType,
+        },
         params.signature,
+        params.signer,
         routePath,
         { gasLimit: 5000000 },
       );
     } else {
       return await this.purchaseContract.buyDataProductWithUniswapErc20(
-        params.requestHash,
-        params.time,
-        parseEther(params.price.toString()),
-        params.productType,
+        {
+          requestHash: params.requestHash,
+          time: params.time,
+          price: parseEther(params.price.toString()),
+          productType: params.productType,
+        },
         params.signature,
+        params.signer,
         token.tokenName,
         routePath,
         { gasLimit: 5000000 },

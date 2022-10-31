@@ -76,6 +76,15 @@ export interface RequestJobDto {
   run_count: number;
 }
 
+export interface ExecuteDataRequestDto {
+  id: string;
+  requestDate: number;
+  requestHash: string;
+  signature: string;
+  signer:string,
+  productType: string;
+}
+
 export interface DataRequestDto {
   id?: string;
   params: any;
@@ -88,6 +97,9 @@ export interface DataRequestDto {
   productType?: string;
   requestJob?: RequestJobDto;
   downloadable: boolean;
+}
+export class DataRequestCalculateDto {
+  id: string;
 }
 
 export interface DataSaveRequestDto {
@@ -110,4 +122,13 @@ export type AuthConfig = {
 export interface PurchaseConfig {
   tokenName: string;
   networkID: string;
+}
+
+export interface PurchaseParams {
+  requestHash: string;
+  signature: string;
+  time: string;
+  productType: string;
+  price: number;
+  signer: string;
 }
