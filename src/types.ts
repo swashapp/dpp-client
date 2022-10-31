@@ -87,6 +87,7 @@ export interface DataRequestDto {
   signature?: string;
   productType?: string;
   requestJob?: RequestJobDto;
+  downloadable: boolean;
 }
 
 export interface DataSaveRequestDto {
