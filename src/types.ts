@@ -76,14 +76,6 @@ export interface RequestJobDto {
   run_count: number;
 }
 
-export interface ExecuteDataRequestDto {
-  id: string;
-  requestDate: number;
-  requestHash: string;
-  signature: string;
-  signer:string,
-  productType: string;
-}
 
 export interface DataRequestDto {
   id?: string;
@@ -93,7 +85,6 @@ export interface DataRequestDto {
   requestDate: number;
   status?: string;
   requestHash?: string;
-  signature?: string;
   productType?: string;
   requestJob?: RequestJobDto;
   downloadable: boolean;
@@ -131,4 +122,14 @@ export interface PurchaseParams {
   productType: string;
   price: number;
   signer: string;
+}
+
+export class SignedDataRequestDto {
+  dataRequestId: string;
+  requestHash: string;
+  signature: string;
+  time: string;
+  productType: string;
+  signer: string;
+  price:number;
 }

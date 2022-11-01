@@ -6,9 +6,10 @@ import {
   DataProductDto,
   DataRequestDto,
   DataSaveRequestDto,
-  dppClientOptions, ExecuteDataRequestDto,
+  dppClientOptions,
   PurchaseConfig,
   SignatureOBJ,
+  SignedDataRequestDto,
 } from './types';
 
 export class DataProviderClient {
@@ -39,7 +40,7 @@ export class DataProviderClient {
   }
 
   public async executeDataRequest(
-    dataRequestDto: ExecuteDataRequestDto,
+    id: string,
     purchaseConfig: PurchaseConfig,
   ): Promise<void> {
     const provider = this.request.getProvider();
@@ -48,17 +49,10 @@ export class DataProviderClient {
     const purchase = new Purchase(purchaseConfig.networkID, provider, signer);
     const token = await purchase.getToken(purchaseConfig.tokenName);
     await purchase.approve(token, account);
-    const price: number = await this.getPrice(dataRequestDto.id);
-    const purchaseParam = {
-      requestHash: dataRequestDto.requestHash,
-      time: '' + dataRequestDto.requestDate,
-      productType: dataRequestDto.productType,
-      signature: dataRequestDto.signature,
-      signer:dataRequestDto.signer,
-      price,
-    };
+    const signedDataRequestDto = await this.sign(id);
+
     try {
-      const tx = await purchase.request(purchaseParam, token);
+      const tx = await purchase.request(signedDataRequestDto, token);
       if (tx) await tx.wait();
       else throw Error('Failed to purchase');
     } catch (err) {
@@ -87,14 +81,23 @@ export class DataProviderClient {
     return this.request.POST(
       URI.DATA_REQUEST + '/calculate/price',
       {
-        id: requestId
+        id: requestId,
+      },
+    );
+  }
+
+  private sign(requestId: string): Promise<SignedDataRequestDto> {
+    return this.request.POST(
+      URI.DATA_REQUEST + '/sign',
+      {
+        id: requestId,
       },
     );
   }
 
   public downloadData(requestId: string): Promise<DataRequestDto> {
     return this.request.GET(URI.DATA_REQUEST + '/download', {
-      id: requestId
+      id: requestId,
     });
   }
 
