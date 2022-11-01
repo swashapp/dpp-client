@@ -21,23 +21,16 @@ class DataProviderClient {
             userAccountAddress,
         });
     }
-    async executeDataRequest(dataRequestDto, purchaseConfig) {
+    async executeDataRequest(id, purchaseConfig) {
         const provider = this.request.getProvider();
         const signer = this.request.getSigner();
         const account = await this.request.getAccount();
         const purchase = new service_1.Purchase(purchaseConfig.networkID, provider, signer);
         const token = await purchase.getToken(purchaseConfig.tokenName);
         await purchase.approve(token, account);
-        const price = await this.getPrice(dataRequestDto);
-        const purchaseParam = {
-            requestHash: dataRequestDto.requestHash,
-            time: '' + dataRequestDto.requestDate,
-            productType: dataRequestDto.productType,
-            signature: dataRequestDto.signature,
-            price,
-        };
+        const signedDataRequestDto = await this.signDataRequest(id);
         try {
-            const tx = await purchase.request(purchaseParam, token);
+            const tx = await purchase.request(signedDataRequestDto, token);
             if (tx)
                 await tx.wait();
             else
@@ -60,13 +53,21 @@ class DataProviderClient {
     getRequestStatus(requestId) {
         return this.request.GET(service_1.URI.DATA_REQUEST + '/status', { id: requestId });
     }
-    getPrice(dataRequestDto) {
-        return this.request.POST(service_1.URI.DATA_REQUEST + '/calculate/price', dataRequestDto);
-    }
-    getDownloadLink(requestId) {
-        return this.request.GET(service_1.URI.DATA_REQUEST + '/download-link', {
+    getPrice(requestId) {
+        return this.request.POST(service_1.URI.DATA_REQUEST + '/calculate/price', {
             id: requestId,
         });
+    }
+    signDataRequest(requestId) {
+        return this.request.POST(service_1.URI.DATA_REQUEST + '/sign', {
+            id: requestId,
+        });
+    }
+    async downloadData(requestId) {
+        const res = await this.request.DOWNLOAD(service_1.URI.DATA_REQUEST + '/download', {
+            id: requestId,
+        });
+        return await res.blob();
     }
     getSelectableColumns(dataType) {
         return this.request.GET(service_1.URI.ACCEPTED_VALUE + '/load-data-product-by-name', {

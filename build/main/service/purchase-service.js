@@ -80,11 +80,24 @@ class Purchase {
     }
     async request(params, token) {
         const routePath = await this.getRoutePath(token, params.price);
+        console.log('++++++++++++++++++++++++');
+        console.log(routePath);
+        console.log(params);
         if (token.isNative) {
-            return await this.purchaseContract.buyDataProductWithUniswapEth(params.requestHash, params.time, (0, units_1.parseEther)(params.price.toString()), params.productType, params.signature, routePath, { gasLimit: 5000000 });
+            return await this.purchaseContract.buyDataProductWithUniswapEth({
+                requestHash: params.requestHash,
+                time: params.time,
+                price: (0, units_1.parseEther)(params.price.toString()),
+                productType: params.productType,
+            }, params.signature, params.signer, routePath, { gasLimit: 5000000 });
         }
         else {
-            return await this.purchaseContract.buyDataProductWithUniswapErc20(params.requestHash, params.time, (0, units_1.parseEther)(params.price.toString()), params.productType, params.signature, token.tokenName, routePath, { gasLimit: 5000000 });
+            return await this.purchaseContract.buyDataProductWithUniswapErc20({
+                requestHash: params.requestHash,
+                time: params.time,
+                price: (0, units_1.parseEther)(params.price.toString()),
+                productType: params.productType,
+            }, params.signature, params.signer, token.tokenName, routePath, { gasLimit: 5000000 });
         }
     }
 }

@@ -7,12 +7,23 @@ export declare const PURCHASE_ABI: ({
     outputs?: undefined;
 } | {
     anonymous: boolean;
-    inputs: {
+    inputs: ({
+        components: {
+            internalType: string;
+            name: string;
+            type: string;
+        }[];
         indexed: boolean;
         internalType: string;
         name: string;
         type: string;
-    }[];
+    } | {
+        indexed: boolean;
+        internalType: string;
+        name: string;
+        type: string;
+        components?: undefined;
+    })[];
     name: string;
     type: string;
     stateMutability?: undefined;
@@ -38,11 +49,21 @@ export declare const PURCHASE_ABI: ({
     type: string;
     anonymous?: undefined;
 } | {
-    inputs: {
+    inputs: ({
+        components: {
+            internalType: string;
+            name: string;
+            type: string;
+        }[];
         internalType: string;
         name: string;
         type: string;
-    }[];
+    } | {
+        internalType: string;
+        name: string;
+        type: string;
+        components?: undefined;
+    })[];
     name: string;
     outputs: {
         internalType: string;

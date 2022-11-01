@@ -7,17 +7,16 @@ exports.PURCHASE_ABI = [
         anonymous: false,
         inputs: [
             {
+                components: [
+                    { internalType: 'string', name: 'requestHash', type: 'string' },
+                    { internalType: 'string', name: 'time', type: 'string' },
+                    { internalType: 'uint256', name: 'price', type: 'uint256' },
+                    { internalType: 'string', name: 'productType', type: 'string' },
+                ],
                 indexed: false,
-                internalType: 'string',
-                name: 'requestHash',
-                type: 'string',
-            },
-            { indexed: false, internalType: 'string', name: 'time', type: 'string' },
-            {
-                indexed: false,
-                internalType: 'uint256',
-                name: 'price',
-                type: 'uint256',
+                internalType: 'struct SwashPurchaseUpgradable.ProductOb',
+                name: 'productOb',
+                type: 'tuple',
             },
             {
                 indexed: false,
@@ -28,14 +27,14 @@ exports.PURCHASE_ABI = [
             {
                 indexed: false,
                 internalType: 'address',
-                name: 'sender',
+                name: 'signer',
                 type: 'address',
             },
             {
                 indexed: false,
-                internalType: 'string',
-                name: 'productType',
-                type: 'string',
+                internalType: 'address',
+                name: 'sender',
+                type: 'address',
             },
         ],
         name: 'DataProductPurchased',
@@ -289,6 +288,34 @@ exports.PURCHASE_ABI = [
         type: 'function',
     },
     {
+        inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+        name: '_signersList',
+        outputs: [{ internalType: 'address', name: '', type: 'address' }],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [{ internalType: 'address', name: '', type: 'address' }],
+        name: '_signersMap',
+        outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [{ internalType: 'address', name: 'signer', type: 'address' }],
+        name: 'addSigner',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [{ internalType: 'address[]', name: 'signers', type: 'address[]' }],
+        name: 'addSignerList',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
         inputs: [
             { internalType: 'string', name: '_name', type: 'string' },
             { internalType: 'address', name: '_address', type: 'address' },
@@ -319,11 +346,19 @@ exports.PURCHASE_ABI = [
     },
     {
         inputs: [
-            { internalType: 'string', name: 'requestHash', type: 'string' },
-            { internalType: 'string', name: 'time', type: 'string' },
-            { internalType: 'uint256', name: 'price', type: 'uint256' },
-            { internalType: 'string', name: 'productType', type: 'string' },
+            {
+                components: [
+                    { internalType: 'string', name: 'requestHash', type: 'string' },
+                    { internalType: 'string', name: 'time', type: 'string' },
+                    { internalType: 'uint256', name: 'price', type: 'uint256' },
+                    { internalType: 'string', name: 'productType', type: 'string' },
+                ],
+                internalType: 'struct SwashPurchaseUpgradable.ProductOb',
+                name: 'productOb',
+                type: 'tuple',
+            },
             { internalType: 'bytes', name: 'signature', type: 'bytes' },
+            { internalType: 'address', name: 'signer', type: 'address' },
             { internalType: 'string', name: 'from_token_name', type: 'string' },
             { internalType: 'address[]', name: 'path', type: 'address[]' },
         ],
@@ -334,11 +369,19 @@ exports.PURCHASE_ABI = [
     },
     {
         inputs: [
-            { internalType: 'string', name: 'requestHash', type: 'string' },
-            { internalType: 'string', name: 'time', type: 'string' },
-            { internalType: 'uint256', name: 'price', type: 'uint256' },
-            { internalType: 'string', name: 'productType', type: 'string' },
+            {
+                components: [
+                    { internalType: 'string', name: 'requestHash', type: 'string' },
+                    { internalType: 'string', name: 'time', type: 'string' },
+                    { internalType: 'uint256', name: 'price', type: 'uint256' },
+                    { internalType: 'string', name: 'productType', type: 'string' },
+                ],
+                internalType: 'struct SwashPurchaseUpgradable.ProductOb',
+                name: 'productOb',
+                type: 'tuple',
+            },
             { internalType: 'bytes', name: 'signature', type: 'bytes' },
+            { internalType: 'address', name: 'signer', type: 'address' },
             { internalType: 'address[]', name: 'path', type: 'address[]' },
         ],
         name: 'buyDataProductWithUniswapEth',
@@ -485,8 +528,8 @@ exports.PURCHASE_ABI = [
     },
     {
         inputs: [],
-        name: 'getSigner',
-        outputs: [{ internalType: 'address', name: '', type: 'address' }],
+        name: 'getSignersList',
+        outputs: [{ internalType: 'address[]', name: '', type: 'address[]' }],
         stateMutability: 'view',
         type: 'function',
     },
@@ -552,9 +595,17 @@ exports.PURCHASE_ABI = [
     },
     {
         inputs: [
-            { internalType: 'string', name: 'requestHash', type: 'string' },
-            { internalType: 'string', name: 'time', type: 'string' },
-            { internalType: 'uint256', name: 'price', type: 'uint256' },
+            {
+                components: [
+                    { internalType: 'string', name: 'requestHash', type: 'string' },
+                    { internalType: 'string', name: 'time', type: 'string' },
+                    { internalType: 'uint256', name: 'price', type: 'uint256' },
+                    { internalType: 'string', name: 'productType', type: 'string' },
+                ],
+                internalType: 'struct SwashPurchaseUpgradable.ProductOb',
+                name: 'productOb',
+                type: 'tuple',
+            },
             { internalType: 'address', name: 'sender', type: 'address' },
         ],
         name: 'isDataProductPurchased',
@@ -617,6 +668,20 @@ exports.PURCHASE_ABI = [
         type: 'function',
     },
     {
+        inputs: [{ internalType: 'address', name: 'signer', type: 'address' }],
+        name: 'removeSigner',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [{ internalType: 'address[]', name: 'signers', type: 'address[]' }],
+        name: 'removeSignerList',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
         inputs: [{ internalType: 'string', name: '_name', type: 'string' }],
         name: 'removeToken',
         outputs: [],
@@ -668,13 +733,6 @@ exports.PURCHASE_ABI = [
             { internalType: 'string[]', name: 'licenseModelNames', type: 'string[]' },
         ],
         name: 'setLicenseModels',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-    },
-    {
-        inputs: [{ internalType: 'address', name: 'signer', type: 'address' }],
-        name: 'setSigner',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',

@@ -76,7 +76,6 @@ export interface RequestJobDto {
   run_count: number;
 }
 
-
 export interface DataRequestDto {
   id?: string;
   params: any;
@@ -131,5 +130,5 @@ export class SignedDataRequestDto {
   time: string;
   productType: string;
   signer: string;
-  price:number;
+  price: number;
 }

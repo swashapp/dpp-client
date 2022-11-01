@@ -71,9 +71,12 @@ export interface DataRequestDto {
     requestDate: number;
     status?: string;
     requestHash?: string;
-    signature?: string;
     productType?: string;
     requestJob?: RequestJobDto;
+    downloadable: boolean;
+}
+export declare class DataRequestCalculateDto {
+    id: string;
 }
 export interface DataSaveRequestDto {
     params: any;
@@ -93,4 +96,21 @@ export declare type AuthConfig = {
 export interface PurchaseConfig {
     tokenName: string;
     networkID: string;
+}
+export interface PurchaseParams {
+    requestHash: string;
+    signature: string;
+    time: string;
+    productType: string;
+    price: number;
+    signer: string;
+}
+export declare class SignedDataRequestDto {
+    dataRequestId: string;
+    requestHash: string;
+    signature: string;
+    time: string;
+    productType: string;
+    signer: string;
+    price: number;
 }

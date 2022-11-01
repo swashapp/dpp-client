@@ -1,5 +1,5 @@
 import { providers, Signer } from 'ethers';
-import { TokenInfo } from '../types';
+import { PurchaseParams, TokenInfo } from '../types';
 export declare class Purchase {
     private purchaseContract;
     private networkID;
@@ -11,11 +11,5 @@ export declare class Purchase {
     private needToBeApproved;
     approve(token: TokenInfo, account: string | null | undefined): Promise<any>;
     private getRoutePath;
-    request(params: {
-        requestHash: string;
-        time: string;
-        productType: string;
-        signature: string;
-        price: number;
-    }, token: TokenInfo): Promise<any>;
+    request(params: PurchaseParams, token: TokenInfo): Promise<any>;
 }

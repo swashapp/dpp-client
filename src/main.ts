@@ -1,3 +1,5 @@
+import Blob from 'buffer';
+
 import { Purchase, Request, URI, WalletRequest, Web3Request } from './service';
 import {
   AuthTokenConfig,
@@ -49,7 +51,7 @@ export class DataProviderClient {
     const purchase = new Purchase(purchaseConfig.networkID, provider, signer);
     const token = await purchase.getToken(purchaseConfig.tokenName);
     await purchase.approve(token, account);
-    const signedDataRequestDto = await this.sign(id);
+    const signedDataRequestDto = await this.signDataRequest(id);
 
     try {
       const tx = await purchase.request(signedDataRequestDto, token);
@@ -78,27 +80,22 @@ export class DataProviderClient {
   }
 
   public getPrice(requestId: string): Promise<number> {
-    return this.request.POST(
-      URI.DATA_REQUEST + '/calculate/price',
-      {
-        id: requestId,
-      },
-    );
-  }
-
-  private sign(requestId: string): Promise<SignedDataRequestDto> {
-    return this.request.POST(
-      URI.DATA_REQUEST + '/sign',
-      {
-        id: requestId,
-      },
-    );
-  }
-
-  public downloadData(requestId: string): Promise<DataRequestDto> {
-    return this.request.GET(URI.DATA_REQUEST + '/download', {
+    return this.request.POST(URI.DATA_REQUEST + '/calculate/price', {
       id: requestId,
     });
+  }
+
+  private signDataRequest(requestId: string): Promise<SignedDataRequestDto> {
+    return this.request.POST(URI.DATA_REQUEST + '/sign', {
+      id: requestId,
+    });
+  }
+
+  public async downloadData(requestId: string): Promise<Blob> {
+    const res = await this.request.DOWNLOAD(URI.DATA_REQUEST + '/download', {
+      id: requestId,
+    });
+    return await res.blob();
   }
 
   public getSelectableColumns(dataType: string): Promise<DataProductDto> {
