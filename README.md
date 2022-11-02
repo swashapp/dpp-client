@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" style='margin-top: 20px'>
     <a href="https://swashapp.io/" target="blank">
         <img src="https://swashapp.io/static/images/logo/swash/s-logo.svg" width="80" alt="Swash Logo" />
     </a>
@@ -77,7 +77,7 @@ Running build command will compile, optimize and minify the source code and will
 
 |Name|Description|Input Parameters|Output Result|
 |----|-----------|----------------|-------------|
-|addRequest|Send Data Request To Data Product Provider Server| DataRequestDto | DataRequestDto |
+|saveDataRequest|Send Data Request To Data Product Provider Server| DataRequestDto | DataRequestDto |
 |getAllRequests|load ALL Data Request By User AWS ID|AWS ID as string|DataRequestDto[]|
 |getRequestById|load Data Request By ID|requestId as string|DataRequestDto|
 |buyRequest|Buy A Request By ID|||
