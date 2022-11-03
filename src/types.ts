@@ -96,6 +96,8 @@ export interface DataSaveRequestDto {
   params: any;
   fileName: string;
   requestDate: number;
+  userAccountAddress: string;
+  downloadable: boolean;
 }
 
 export type AuthConfig = {

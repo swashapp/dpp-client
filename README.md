@@ -77,21 +77,43 @@ Running build command will compile, optimize and minify the source code and will
 
 |Name|Description|Input Parameters|Output Result|
 |----|-----------|----------------|-------------|
-|saveDataRequest|Send Data Request To Data Product Provider Server| DataRequestDto | DataRequestDto |
-|getAllRequests|load ALL Data Request By User AWS ID|AWS ID as string|DataRequestDto[]|
+|saveDataRequest|Send Data Request To Data Product Provider Server| DataSaveRequestDto | DataRequestDto |
+|executeDataRequest|purchase data request and after that prepare data for calculation or download| dataRequestId:string,purchaseConfig:PurchaseConfig |  |
+|deleteRequest|delete a request By ID|requestId||
+|getAllRequests|load ALL Data Request Of User||DataRequestDto[]|
 |getRequestById|load Data Request By ID|requestId as string|DataRequestDto|
-|buyRequest|Buy A Request By ID|||
+|getPrice|get data request price by dataRequestId|requestId as string|number|
 |getRequestStatus|Get The status Of The Request By ID|requestId as string|status as string|
-|getDownloadLink|Get The S3 Path Of The Request By ID|requestId as string|downloadLink as string|
-|loadDataProductByName|get the data product details by its name e.g: visitation, shopping, …|The data product name that can be one of these values:<br>ENUM: VISITATION, SEARCH\_REQUEST, SEARCH\_RESULT, SHOPPING|DataProductDto[]|
+|downloadData|download request raw data by dataRequestId|requestId as string|raw data ad byte[]|
+|getSelectableColumns|get the data product details by its name e.g: visitation, shopping, …|The data product name that can be one of these values:<br>ENUM: VISITATION, SEARCH\_REQUEST, SEARCH\_RESULT, SHOPPING|DataProductDto|
 |getAcceptedValues|get the accepted values for one column, e.g. for the sex column male and female are acceptable|The column name, e.g. country|string[]|
 
-## **Add Request Input Parameters**
+## **DataSaveRequestDto**
 
 |**Name**|**Description**|**Type**|
 |----|-----------|-------------|
 |params|JSON format of all request parameter|RequestParam|
-|fileName| |string|
+|fileName|The file name of data that system crete after purchase|string|
+|requestDate|The date of the request|number|
+|userAccountAddress|The account address of request creator|string|
+|downloadable|If user want to download raw data this filed must be true|boolean|
+
+
+## **DataRequestDto**
+
+|**Field Name**|**Description**|**Type**|
+|:-------:|:---------:|:----:|  
+|id|Identifier|string|
+|params|JSON format of all request parameter|RequestParam|
+|userAccountAddress|The wallet address of the user|string|
+|requestHash|The hash of data request that is readonly field and can be used for purchasing data and will be created by the dpp backend|string|
+|fileName|The file name that data must be saved with this name|string|
+|downloadable|If user want to buy and download row data|boolean|
+|requestDate|The Date Of The Request|number|
+|productType|The name of the product tha is used for purchasing and is fix and its value is "data-product-provider"|string|
+|status|The status of the request|Enum: DRAFT, PAYED|
+|requestJob||RequestJobDto|
+
 
 ## **Request Parameters**
 
@@ -102,20 +124,8 @@ Running build command will compile, optimize and minify the source code and will
 |selectedDbFields| |string[]|
 |filterCondition| |QueryBuilderModel|
 
-## **DataRequestDto**
 
-|**Field Name**|**Description**|**Type**|
-|:-------:|:---------:|:----:|  
-|id|Identifier|string|
-|params|JSON format of all request parameter|RequestParam|
-|userAccountAddress|The wallet address of the user|string|
-|savingDirectory|The file directory that data must be stored|string|
-|fileName|The file name that data must be saved with this name|string|
-|s3Path|The full file path that system generate for saving data|string|
-|userAwsId|The AWS ID Of the User|string|
-|requestDate|The Date Of The Request|date|
-|status|The status of the request|Enum: DRAFT, PAYED|
-|requestJob||RequestJobDto|
+
 ## **RequestJobDto**
 
 |**Field Name**|**Description**|**Type**|
@@ -127,6 +137,15 @@ Running build command will compile, optimize and minify the source code and will
 |last\_execution\_time| |date|
 |meta\_data|the result of AWS command|JSON |
 |run\_count|number of execution of the job if failed|number|
+
+## **PurchaseConfig**
+
+|    **Field Name**    |**Description**|**Type**|
+|:-------------:|:---------:|:----:|  
+|tokenName|The token name for purchase |string|
+|networkID|The network id for purchase |string|
+
+
 
 ## **DataProductDto**
 
@@ -153,78 +172,37 @@ Running build command will compile, optimize and minify the source code and will
 Let's start with an example:
 ```json
 {
-
-        params: {
-
-          dataType: 'VISITATION',
-
-          repeatType: 'ONCE',
-
-          selectedDpFields: [
-
-            'user\_agent\_str',
-
-            'browser\_name',
-
-            'browser\_ver',
-
-            'platform',
-
-            'os\_name',
-
-            'os\_version',
-
-            'UserId',
-
-          ],
-
-          filterCondition: {
-
-            combinator: 'and',
-
-            rules: [
-
-              {
-
-                id: 'r-0.8400281364485467',
-
-                field: 'os\_name',
-
-                operator: 'in',
-
-                valueSource: 'value',
-
-                value: 'mac,linux',
-
-              },
-
-            ],
-
-            id: 'g-0.8096738078816702',
-
-            not: false,
-
-          },
-
-        },
-
-        requestDate: new Date().getTime(),
-
-        userAccountAddress:walletAddress,
-
-        s3Path:
-
-          's3://swash-data-product-provider-bucket/SC\_User\_' +
-
-          new Date().getTime() +
-
-          '/info',
-
-        status: 'DRAFT',
-
-      },
-
+  "params": {
+    "dataType": "VISITATION",
+    "repeatType": "ONCE",
+    "selectedDpFields": [
+      "browser_name",
+      "platform",
+      "os_name",
+      "os_version",
+      "Country",
+      "Gender"
+    ],
+    "filterCondition": {
+      "combinator": "and",
+      "rules": [
+        {
+          "id": "r-0.9092211207828882",
+          "field": "country",
+          "operator": "in",
+          "valueSource": "value",
+          "value": "Australia,Turkey"
+        }
+      ],
+      "id": "g-0.4676271133369242",
+      "not": false
     }
+  },
+  "fileName": "test",
+  "downloadable": true,
+  "requestDate": 1667390981356,
+  "userAccountAddress": "0x367C58e18D3f813275f0f30263c9cEa2656Af29a"
+}
 ```
 
 In this JSON, the parameter fields contain this information:
