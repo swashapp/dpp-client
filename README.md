@@ -85,7 +85,7 @@ Running build command will compile, optimize and minify the source code and will
 |getPrice|get data request price by dataRequestId|requestId as string|number|
 |getRequestStatus|Get The status Of The Request By ID|requestId as string|status as string|
 |downloadData|download request raw data by dataRequestId|requestId as string|raw data ad byte[]|
-|getSelectableColumns|get the data product details by its name e.g: visitation, shopping, …|The data product name that can be one of these values:<br>ENUM: VISITATION, SEARCH\_REQUEST, SEARCH\_RESULT, SHOPPING|DataProductDto|
+|getSelectableColumns|get the data product details by its name e.g: VISITATION, SEARCH\_REQUEST, SEARCH\_RESULT, SHOPPING|The data product name that can be one of these values:<br>ENUM: VISITATION, SEARCH\_REQUEST, SEARCH\_RESULT, SHOPPING|DataProductDto|
 |getAcceptedValues|get the accepted values for one column, e.g. for the sex column male and female are acceptable|The column name, e.g. country|string[]|
 
 ## **DataSaveRequestDto**
