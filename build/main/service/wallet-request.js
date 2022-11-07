@@ -20,9 +20,7 @@ class WalletRequest extends request_service_1.Request {
     constructor(config, options) {
         super(config.session, options);
         this.config = config;
-        this.provider = config.rpcUrl
-            ? new ethers_1.providers.JsonRpcProvider(config.rpcUrl)
-            : (0, ethers_1.getDefaultProvider)();
+        this.provider = config.provider;
         this.wallet = new ethers_1.Wallet(config.privateKey, this.provider);
     }
     async getSignatureObj() {

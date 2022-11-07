@@ -80,9 +80,6 @@ class Purchase {
     }
     async request(params, token) {
         const routePath = await this.getRoutePath(token, params.price);
-        console.log('++++++++++++++++++++++++');
-        console.log(routePath);
-        console.log(params);
         if (token.isNative) {
             return await this.purchaseContract.buyDataProductWithUniswapEth({
                 requestHash: params.requestHash,
