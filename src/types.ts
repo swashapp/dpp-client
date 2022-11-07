@@ -1,3 +1,4 @@
+import { providers } from 'ethers';
 import Web3 from 'web3';
 
 export interface AuthSessionConfig {
@@ -20,7 +21,7 @@ export interface TokenInfo {
 
 export interface AuthWalletConfig {
   privateKey: string;
-  rpcUrl?: string;
+  provider: providers.BaseProvider;
   session?: AuthSessionConfig;
 }
 

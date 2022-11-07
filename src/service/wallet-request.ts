@@ -27,9 +27,8 @@ export class WalletRequest extends Request {
   constructor(config: AuthWalletConfig, options: dppClientOptions) {
     super(config.session, options);
     this.config = config;
-    this.provider = config.rpcUrl
-      ? new providers.JsonRpcProvider(config.rpcUrl)
-      : getDefaultProvider();
+    this.provider = config.provider;
+
     this.wallet = new Wallet(config.privateKey, this.provider);
   }
 
