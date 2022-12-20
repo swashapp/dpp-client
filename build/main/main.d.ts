@@ -13,9 +13,13 @@ export declare class DataProviderClient {
     getAllRequests(): Promise<Array<DataRequestDto>>;
     getRequestById(requestId: string): Promise<DataRequestDto>;
     getRequestStatus(requestId: string): Promise<DataRequestDto>;
-    getPrice(requestId: string): Promise<number>;
+    getPrice(requestId: string): Promise<{
+        title: string;
+        price: number;
+    }[]>;
     private signDataRequest;
     downloadData(requestId: string): Promise<Blob>;
     getSelectableColumns(dataType: string): Promise<DataProductDto>;
     getAcceptedValues(columnName: string): Promise<string[]>;
+    private purchased;
 }

@@ -61,6 +61,8 @@ export class DataProviderClient {
       console.log(err);
       throw Error('Failed to purchase');
     }
+
+    this.purchased(id);
   }
 
   public deleteRequest(requestId: string): Promise<Array<DataRequestDto>> {
@@ -79,7 +81,9 @@ export class DataProviderClient {
     return this.request.GET(URI.DATA_REQUEST + '/status', { id: requestId });
   }
 
-  public getPrice(requestId: string): Promise<number> {
+  public getPrice(
+    requestId: string,
+  ): Promise<{ title: string; price: number }[]> {
     return this.request.POST(URI.DATA_REQUEST + '/calculate/price', {
       id: requestId,
     });
@@ -107,6 +111,12 @@ export class DataProviderClient {
   public getAcceptedValues(columnName: string): Promise<string[]> {
     return this.request.GET(URI.ACCEPTED_VALUE + '/load-by-name', {
       name: columnName,
+    });
+  }
+
+  private purchased(requestId: string): Promise<string[]> {
+    return this.request.POST(URI.DATA_REQUEST + '/purchased', {
+      id: requestId,
     });
   }
 }

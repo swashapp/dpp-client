@@ -40,6 +40,7 @@ class DataProviderClient {
             console.log(err);
             throw Error('Failed to purchase');
         }
+        this.purchased(id);
     }
     deleteRequest(requestId) {
         return this.request.DELETE(service_1.URI.DATA_REQUEST + '/delete', { id: requestId });
@@ -77,6 +78,11 @@ class DataProviderClient {
     getAcceptedValues(columnName) {
         return this.request.GET(service_1.URI.ACCEPTED_VALUE + '/load-by-name', {
             name: columnName,
+        });
+    }
+    purchased(requestId) {
+        return this.request.POST(service_1.URI.DATA_REQUEST + '/purchased', {
+            id: requestId,
         });
     }
 }
