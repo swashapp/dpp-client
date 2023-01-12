@@ -4,6 +4,69 @@ exports.DataProviderClient = void 0;
 const service_1 = require("./service");
 class DataProviderClient {
     constructor(config) {
+        this.dataRequest = {
+            getAll: () => this.request.GET(service_1.URI.DATA_REQUEST + '/list'),
+            add: async (req) => {
+                const userAccountAddress = await this.request.getAccount();
+                return this.request.POST(service_1.URI.DATA_REQUEST, {
+                    ...req,
+                    userAccountAddress,
+                });
+            },
+            with: (id) => {
+                const sdk = this;
+                return {
+                    provide: async (purchaseConfig) => {
+                        const provider = sdk.request.getProvider();
+                        const signer = sdk.request.getSigner();
+                        const account = await sdk.request.getAccount();
+                        const purchase = new service_1.Purchase(purchaseConfig.networkID, provider, signer);
+                        const token = await purchase.getToken(purchaseConfig.tokenName);
+                        await purchase.approve(token, account);
+                        const signedDataRequestDto = await sdk.sign(id);
+                        try {
+                            const tx = await purchase.request(signedDataRequestDto, token);
+                            if (tx)
+                                await tx.wait();
+                            else
+                                throw Error('Failed to purchase');
+                        }
+                        catch (err) {
+                            console.log(err);
+                            throw Error('Failed to purchase');
+                        }
+                        await sdk.purchased(id);
+                    },
+                    delete: () => {
+                        return sdk.request.DELETE(service_1.URI.DATA_REQUEST, { id });
+                    },
+                    get: () => {
+                        return sdk.request.GET(service_1.URI.DATA_REQUEST, { id });
+                    },
+                    getPrice: () => {
+                        return sdk.request.GET(service_1.URI.DATA_REQUEST + '/price', {
+                            id,
+                        });
+                    },
+                    download: async () => {
+                        const res = await sdk.request.DOWNLOAD(service_1.URI.DATA_REQUEST + '/download', { id });
+                        return await res.blob();
+                    },
+                };
+            },
+        };
+        this.dataLake = {
+            getSchema: (name) => {
+                return this.request.GET(service_1.URI.DATA_LAKE + '/schema', {
+                    name,
+                });
+            },
+            getAcceptedValues: (columnName) => {
+                return this.request.GET(service_1.URI.DATA_LAKE + '/acceptedvalues', {
+                    name: columnName,
+                });
+            },
+        };
         const auth = config.auth;
         const options = config.options;
         if (auth.web3)
@@ -14,76 +77,11 @@ class DataProviderClient {
     getSignature() {
         return this.request.getSignatureObj();
     }
-    async saveDataRequest(dataRequestDto) {
-        const userAccountAddress = await this.request.getAccount();
-        return this.request.POST(service_1.URI.DATA_REQUEST + '/add', {
-            ...dataRequestDto,
-            userAccountAddress,
-        });
+    sign(id) {
+        return this.request.POST(service_1.URI.DATA_REQUEST + '/sign', { id });
     }
-    async executeDataRequest(id, purchaseConfig) {
-        const provider = this.request.getProvider();
-        const signer = this.request.getSigner();
-        const account = await this.request.getAccount();
-        const purchase = new service_1.Purchase(purchaseConfig.networkID, provider, signer);
-        const token = await purchase.getToken(purchaseConfig.tokenName);
-        await purchase.approve(token, account);
-        const signedDataRequestDto = await this.signDataRequest(id);
-        try {
-            const tx = await purchase.request(signedDataRequestDto, token);
-            if (tx)
-                await tx.wait();
-            else
-                throw Error('Failed to purchase');
-        }
-        catch (err) {
-            console.log(err);
-            throw Error('Failed to purchase');
-        }
-        this.purchased(id);
-    }
-    deleteRequest(requestId) {
-        return this.request.DELETE(service_1.URI.DATA_REQUEST + '/delete', { id: requestId });
-    }
-    getAllRequests() {
-        return this.request.GET(service_1.URI.DATA_REQUEST + '/list');
-    }
-    getRequestById(requestId) {
-        return this.request.GET(service_1.URI.DATA_REQUEST + '/load', { id: requestId });
-    }
-    getRequestStatus(requestId) {
-        return this.request.GET(service_1.URI.DATA_REQUEST + '/status', { id: requestId });
-    }
-    getPrice(requestId) {
-        return this.request.POST(service_1.URI.DATA_REQUEST + '/calculate/price', {
-            id: requestId,
-        });
-    }
-    signDataRequest(requestId) {
-        return this.request.POST(service_1.URI.DATA_REQUEST + '/sign', {
-            id: requestId,
-        });
-    }
-    async downloadData(requestId) {
-        const res = await this.request.DOWNLOAD(service_1.URI.DATA_REQUEST + '/download', {
-            id: requestId,
-        });
-        return await res.blob();
-    }
-    getSelectableColumns(dataType) {
-        return this.request.GET(service_1.URI.ACCEPTED_VALUE + '/load-data-product-by-name', {
-            name: dataType,
-        });
-    }
-    getAcceptedValues(columnName) {
-        return this.request.GET(service_1.URI.ACCEPTED_VALUE + '/load-by-name', {
-            name: columnName,
-        });
-    }
-    purchased(requestId) {
-        return this.request.POST(service_1.URI.DATA_REQUEST + '/purchased', {
-            id: requestId,
-        });
+    purchased(id) {
+        return this.request.POST(service_1.URI.DATA_REQUEST + '/purchased', { id });
     }
 }
 exports.DataProviderClient = DataProviderClient;

@@ -6,8 +6,8 @@ import * as jwt from 'jsonwebtoken';
 import { AuthSessionConfig, dppClientOptions, SignatureOBJ } from '../types';
 
 export enum URI {
-  DATA_REQUEST = 'data-request',
-  ACCEPTED_VALUE = 'accepted-value',
+  DATA_REQUEST = 'datarequest',
+  DATA_LAKE = 'datalake',
   SIGNATURE = 'public/signature',
   LOG = 'log',
 }

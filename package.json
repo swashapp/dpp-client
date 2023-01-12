@@ -1,6 +1,6 @@
 {
   "name": "dpp-client",
-  "version": "1.2.1",
+  "version": "1.2.4",
   "description": "",
   "private": false,
   "license": "MIT",
@@ -17,7 +17,9 @@
   },
   "files": [
     "build/main/*",
+    "!server/*",
     "!**/*.spec.*",
+    "!**/*.test.*",
     "!**/*.json",
     "CHANGELOG.md",
     "LICENSE",
@@ -25,14 +27,16 @@
   ],
   "dependencies": {
     "cross-fetch": "^3.1.5",
-    "jsonwebtoken": "^8.5.1",
     "ethers": "^5.7.1",
+    "jsonwebtoken": "^8.5.1",
     "web3": "^1.7.5"
   },
   "devDependencies": {
+    "@types/jest": "^29.2.5",
     "@types/node": "^14.14.31",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
     "@typescript-eslint/parser": "^4.15.2",
+    "@uniswap/router-sdk": "1.0.5",
     "cross-env": "^7.0.3",
     "cross-var": "^1.1.0",
     "eslint": "^7.20.0",
@@ -43,13 +47,12 @@
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
     "shx": "^0.3.3",
+    "swash-order-router": "github:swashapp/smart-order-router#e7fa858daa3ed19d7a21ef90d58cc7c5fc71b506",
     "ts-jest": "^26.5.2",
     "ts-loader": "^8.0.17",
     "ts-node": "^9.1.1",
     "tsconfig-paths": "^3.9.0",
-    "typescript": "^4.1.5",
-    "@uniswap/router-sdk": "1.0.5",
-    "swash-order-router": "github:swashapp/smart-order-router#e7fa858daa3ed19d7a21ef90d58cc7c5fc71b506"
+    "typescript": "^4.1.5"
   },
   "jest": {
     "moduleFileExtensions": [
