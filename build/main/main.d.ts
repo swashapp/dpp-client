@@ -1,5 +1,4 @@
-/// <reference types="node" />
-import { AuthTokenConfig, AuthWalletConfig, AuthWeb3Config, DataProductDto, DataRequestDto, DataSaveRequestDto, dppClientOptions, PurchaseConfig, SignatureOBJ } from './types';
+import { AuthTokenConfig, AuthWalletConfig, AuthWeb3Config, DataLake, DataReq, dppClientOptions, SignatureOBJ } from './types';
 export declare class DataProviderClient {
     private request;
     constructor(config: {
@@ -7,19 +6,8 @@ export declare class DataProviderClient {
         options?: dppClientOptions;
     });
     getSignature(): Promise<SignatureOBJ>;
-    saveDataRequest(dataRequestDto: DataSaveRequestDto): Promise<DataRequestDto>;
-    executeDataRequest(id: string, purchaseConfig: PurchaseConfig): Promise<void>;
-    deleteRequest(requestId: string): Promise<Array<DataRequestDto>>;
-    getAllRequests(): Promise<Array<DataRequestDto>>;
-    getRequestById(requestId: string): Promise<DataRequestDto>;
-    getRequestStatus(requestId: string): Promise<DataRequestDto>;
-    getPrice(requestId: string): Promise<{
-        title: string;
-        price: number;
-    }[]>;
-    private signDataRequest;
-    downloadData(requestId: string): Promise<Blob>;
-    getSelectableColumns(dataType: string): Promise<DataProductDto>;
-    getAcceptedValues(columnName: string): Promise<string[]>;
+    private sign;
     private purchased;
+    dataRequest: DataReq;
+    dataLake: DataLake;
 }

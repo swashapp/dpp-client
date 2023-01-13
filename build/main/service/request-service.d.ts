@@ -2,8 +2,8 @@
 import { providers, Signer } from 'ethers';
 import { AuthSessionConfig, dppClientOptions, SignatureOBJ } from '../types';
 export declare enum URI {
-    DATA_REQUEST = "data-request",
-    ACCEPTED_VALUE = "accepted-value",
+    DATA_REQUEST = "datarequest",
+    DATA_LAKE = "datalake",
     SIGNATURE = "public/signature",
     LOG = "log"
 }

@@ -1,17 +1,18 @@
-import Blob from 'buffer';
-
 import { Purchase, Request, URI, WalletRequest, Web3Request } from './service';
 import {
   AuthTokenConfig,
   AuthWalletConfig,
   AuthWeb3Config,
-  DataProductDto,
-  DataRequestDto,
-  DataSaveRequestDto,
+  DataLake,
+  DataLakeSchema,
+  DataReq,
+  DataReqFN,
+  DataRequest,
+  DataRequestDetails,
   dppClientOptions,
   PurchaseConfig,
   SignatureOBJ,
-  SignedDataRequestDto,
+  SignedDataRequest,
 } from './types';
 
 export class DataProviderClient {
@@ -31,92 +32,81 @@ export class DataProviderClient {
     return this.request.getSignatureObj();
   }
 
-  public async saveDataRequest(
-    dataRequestDto: DataSaveRequestDto,
-  ): Promise<DataRequestDto> {
-    const userAccountAddress = await this.request.getAccount();
-    return this.request.POST(URI.DATA_REQUEST + '/add', {
-      ...dataRequestDto,
-      userAccountAddress,
-    });
+  private sign(id: string): Promise<SignedDataRequest> {
+    return this.request.POST(URI.DATA_REQUEST + '/sign', { id });
   }
 
-  public async executeDataRequest(
-    id: string,
-    purchaseConfig: PurchaseConfig,
-  ): Promise<void> {
-    const provider = this.request.getProvider();
-    const signer = this.request.getSigner();
-    const account = await this.request.getAccount();
-    const purchase = new Purchase(purchaseConfig.networkID, provider, signer);
-    const token = await purchase.getToken(purchaseConfig.tokenName);
-    await purchase.approve(token, account);
-    const signedDataRequestDto = await this.signDataRequest(id);
-
-    try {
-      const tx = await purchase.request(signedDataRequestDto, token);
-      if (tx) await tx.wait();
-      else throw Error('Failed to purchase');
-    } catch (err) {
-      console.log(err);
-      throw Error('Failed to purchase');
-    }
-
-    this.purchased(id);
+  private purchased(id: string): Promise<string[]> {
+    return this.request.POST(URI.DATA_REQUEST + '/purchased', { id });
   }
 
-  public deleteRequest(requestId: string): Promise<Array<DataRequestDto>> {
-    return this.request.DELETE(URI.DATA_REQUEST + '/delete', { id: requestId });
-  }
+  public dataRequest: DataReq = {
+    getAll: (): Promise<DataRequest[]> =>
+      this.request.GET(URI.DATA_REQUEST + '/list'),
+    add: async (req: DataRequestDetails): Promise<DataRequest> => {
+      const userAccountAddress = await this.request.getAccount();
+      return this.request.POST(URI.DATA_REQUEST, {
+        ...req,
+        userAccountAddress,
+      });
+    },
+    with: (id: string): DataReqFN => {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const sdk = this;
+      return {
+        provide: async (purchaseConfig: PurchaseConfig): Promise<void> => {
+          const provider = sdk.request.getProvider();
+          const signer = sdk.request.getSigner();
+          const account = await sdk.request.getAccount();
+          const purchase = new Purchase(
+            purchaseConfig.networkID,
+            provider,
+            signer,
+          );
+          const token = await purchase.getToken(purchaseConfig.tokenName);
+          await purchase.approve(token, account);
+          const signedDataRequestDto = await sdk.sign(id);
 
-  public getAllRequests(): Promise<Array<DataRequestDto>> {
-    return this.request.GET(URI.DATA_REQUEST + '/list');
-  }
+          try {
+            const tx = await purchase.request(signedDataRequestDto, token);
+            if (tx) await tx.wait();
+            else throw Error('Failed to purchase');
+          } catch (err) {
+            console.log(err);
+            throw Error('Failed to purchase');
+          }
 
-  public getRequestById(requestId: string): Promise<DataRequestDto> {
-    return this.request.GET(URI.DATA_REQUEST + '/load', { id: requestId });
-  }
+          await sdk.purchased(id);
+        },
 
-  public getRequestStatus(requestId: string): Promise<DataRequestDto> {
-    return this.request.GET(URI.DATA_REQUEST + '/status', { id: requestId });
-  }
+        delete: (): Promise<DataRequest> => {
+          return sdk.request.DELETE(URI.DATA_REQUEST, { id });
+        },
 
-  public getPrice(
-    requestId: string,
-  ): Promise<{ title: string; price: number }[]> {
-    return this.request.POST(URI.DATA_REQUEST + '/calculate/price', {
-      id: requestId,
-    });
-  }
+        get: (): Promise<DataRequest> => {
+          return sdk.request.GET(URI.DATA_REQUEST, { id });
+        },
 
-  private signDataRequest(requestId: string): Promise<SignedDataRequestDto> {
-    return this.request.POST(URI.DATA_REQUEST + '/sign', {
-      id: requestId,
-    });
-  }
+        getPrice: (): Promise<{ title: string; price: number }[]> => {
+          return sdk.request.GET(URI.DATA_REQUEST + '/price', {
+            id,
+          });
+        },
+      };
+    },
+  };
 
-  public async downloadData(requestId: string): Promise<Blob> {
-    const res = await this.request.DOWNLOAD(URI.DATA_REQUEST + '/download', {
-      id: requestId,
-    });
-    return await res.blob();
-  }
+  public dataLake: DataLake = {
+    getSchema: (name: string): Promise<DataLakeSchema> => {
+      return this.request.GET(URI.DATA_LAKE + '/schema', {
+        name,
+      });
+    },
 
-  public getSelectableColumns(dataType: string): Promise<DataProductDto> {
-    return this.request.GET(URI.ACCEPTED_VALUE + '/load-data-product-by-name', {
-      name: dataType,
-    });
-  }
-
-  public getAcceptedValues(columnName: string): Promise<string[]> {
-    return this.request.GET(URI.ACCEPTED_VALUE + '/load-by-name', {
-      name: columnName,
-    });
-  }
-
-  private purchased(requestId: string): Promise<string[]> {
-    return this.request.POST(URI.DATA_REQUEST + '/purchased', {
-      id: requestId,
-    });
-  }
+    getAcceptedValues: (columnName: string): Promise<string[]> => {
+      return this.request.GET(URI.DATA_LAKE + '/acceptedvalues', {
+        name: columnName,
+      });
+    },
+  };
 }

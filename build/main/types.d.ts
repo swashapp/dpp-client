@@ -32,30 +32,20 @@ export interface dppClientOptions {
     host?: string;
     servicesHost?: string;
 }
-export declare class DataDictionaryDto {
+export declare class DataLakeField {
     id: string;
     name: string;
     title: string;
     description: string;
     sample: string;
 }
-export interface DataProductDto {
+export interface DataLakeSchema {
     id: string;
     name: string;
     description: string;
-    dataDictionaries: DataDictionaryDto[];
+    dataDictionaries: DataLakeField[];
 }
-export interface BaseResponseDto {
-    readonly status: ResponseStatus;
-    readonly data?: any;
-    readonly count?: number;
-}
-export declare enum ResponseStatus {
-    ERROR = "error",
-    SUCCESS = "success",
-    EXPIRED = "expired"
-}
-export interface RequestJobDto {
+export interface RequestJob {
     id: string;
     status: string;
     result_path: string;
@@ -64,7 +54,7 @@ export interface RequestJobDto {
     meta_data: string;
     run_count: number;
 }
-export interface DataRequestDto {
+export interface DataRequest {
     id?: string;
     params: any;
     userAccountAddress: string;
@@ -73,18 +63,16 @@ export interface DataRequestDto {
     status?: string;
     requestHash?: string;
     productType?: string;
-    requestJob?: RequestJobDto;
+    requestJob?: RequestJob;
     downloadable: boolean;
 }
 export declare class DataRequestCalculateDto {
     id: string;
 }
-export interface DataSaveRequestDto {
+export interface DataRequestDetails {
     params: any;
     fileName: string;
     requestDate: number;
-    userAccountAddress: string;
-    downloadable: boolean;
 }
 export declare type AuthConfig = {
     serverURL?: string;
@@ -108,7 +96,7 @@ export interface PurchaseParams {
     price: number;
     signer: string;
 }
-export declare class SignedDataRequestDto {
+export declare class SignedDataRequest {
     dataRequestId: string;
     requestHash: string;
     signature: string;
@@ -116,4 +104,23 @@ export declare class SignedDataRequestDto {
     productType: string;
     signer: string;
     price: number;
+}
+export interface DataReqFN {
+    provide: (purchaseConfig: PurchaseConfig) => Promise<void>;
+    delete: () => Promise<DataRequest>;
+    get: () => Promise<DataRequest>;
+    getPrice: () => Promise<{
+        title: string;
+        price: number;
+    }[]>;
+    download: () => Promise<Blob>;
+}
+export interface DataReq {
+    getAll: () => Promise<DataRequest[]>;
+    add: (req: DataRequestDetails) => Promise<DataRequest>;
+    with: (id: string) => DataReqFN;
+}
+export interface DataLake {
+    getSchema: (name: string) => Promise<DataLakeSchema>;
+    getAcceptedValues: (fieldName: string) => Promise<string[]>;
 }
