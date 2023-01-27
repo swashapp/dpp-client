@@ -1,4 +1,4 @@
-import { getDefaultProvider, providers, Signer, Wallet } from 'ethers';
+import { providers, Signer, Wallet } from 'ethers';
 
 import { AuthWalletConfig, dppClientOptions, SignatureOBJ } from '../types';
 
@@ -21,8 +21,8 @@ async function walletSignMessage(
 }
 export class WalletRequest extends Request {
   private config: AuthWalletConfig;
-  private wallet: Wallet;
-  private provider: providers.BaseProvider;
+  private readonly wallet: Wallet;
+  private readonly provider: providers.BaseProvider;
 
   constructor(config: AuthWalletConfig, options: dppClientOptions) {
     super(config.session, options);

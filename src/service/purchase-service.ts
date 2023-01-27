@@ -22,11 +22,11 @@ import { PurchaseParams, TokenInfo } from '../types';
 
 export class Purchase {
   private purchaseContract: Contract;
-  private networkID: string;
-  private provider: providers.BaseProvider;
-  private signer: Signer;
+  private readonly networkID: string;
+  private readonly provider: providers.BaseProvider;
+  private readonly signer: Signer;
 
-  private SWASH_TOKEN: Token;
+  private readonly SWASH_TOKEN: Token;
 
   constructor(
     networkID: string,
@@ -105,15 +105,15 @@ export class Purchase {
 
   private async getRoutePath(
     token: TokenInfo,
-    priceInDoller: number,
+    priceInDollar: number,
   ): Promise<Array<string>> {
     const priceInSwash = await this.purchaseContract.priceInSwash(
-      parseEther(priceInDoller.toString()),
+      parseEther(priceInDollar.toString()),
     );
     if (token.isSwash) {
       return [token.tokenAddress, token.tokenAddress];
     }
-    let tokenOut = null;
+    let tokenOut;
 
     if (token.isNative) {
       tokenOut = WRAPPED_NATIVE_CURRENCY[Number(this.networkID)];

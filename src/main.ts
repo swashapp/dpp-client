@@ -104,7 +104,7 @@ export class DataProviderClient {
     },
 
     getAcceptedValues: (columnName: string): Promise<string[]> => {
-      return this.request.GET(URI.DATA_LAKE + '/acceptedvalues', {
+      return this.request.GET(URI.DATA_LAKE + '/accepted-values', {
         name: columnName,
       });
     },
