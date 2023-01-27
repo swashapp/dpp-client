@@ -32,8 +32,8 @@ const form_data_1 = __importDefault(require("form-data"));
 const jwt = __importStar(require("jsonwebtoken"));
 var URI;
 (function (URI) {
-    URI["DATA_REQUEST"] = "datarequest";
-    URI["DATA_LAKE"] = "datalake";
+    URI["DATA_REQUEST"] = "data-request";
+    URI["DATA_LAKE"] = "data-lake";
     URI["SIGNATURE"] = "public/signature";
     URI["LOG"] = "log";
 })(URI = exports.URI || (exports.URI = {}));

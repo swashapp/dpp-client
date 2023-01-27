@@ -64,7 +64,6 @@ export interface DataRequest {
     requestHash?: string;
     productType?: string;
     requestJob?: RequestJob;
-    downloadable: boolean;
 }
 export declare class DataRequestCalculateDto {
     id: string;
@@ -113,7 +112,6 @@ export interface DataReqFN {
         title: string;
         price: number;
     }[]>;
-    download: () => Promise<Blob>;
 }
 export interface DataReq {
     getAll: () => Promise<DataRequest[]>;

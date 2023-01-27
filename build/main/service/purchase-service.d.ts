@@ -2,10 +2,10 @@ import { providers, Signer } from 'ethers';
 import { PurchaseParams, TokenInfo } from '../types';
 export declare class Purchase {
     private purchaseContract;
-    private networkID;
-    private provider;
-    private signer;
-    private SWASH_TOKEN;
+    private readonly networkID;
+    private readonly provider;
+    private readonly signer;
+    private readonly SWASH_TOKEN;
     constructor(networkID: string, provider: providers.BaseProvider, signer: Signer);
     getToken(tokenName: string): Promise<TokenInfo>;
     private needToBeApproved;

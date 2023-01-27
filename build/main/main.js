@@ -48,10 +48,6 @@ class DataProviderClient {
                             id,
                         });
                     },
-                    download: async () => {
-                        const res = await sdk.request.DOWNLOAD(service_1.URI.DATA_REQUEST + '/download', { id });
-                        return await res.blob();
-                    },
                 };
             },
         };
@@ -62,7 +58,7 @@ class DataProviderClient {
                 });
             },
             getAcceptedValues: (columnName) => {
-                return this.request.GET(service_1.URI.DATA_LAKE + '/acceptedvalues', {
+                return this.request.GET(service_1.URI.DATA_LAKE + '/accepted-values', {
                     name: columnName,
                 });
             },
