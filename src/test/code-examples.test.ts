@@ -1,6 +1,5 @@
 import { fail } from 'assert';
 
-import { randomUUID } from 'crypto';
 import path from 'path';
 
 import * as dotenv from 'dotenv';
@@ -125,7 +124,7 @@ describe('Data request management', () => {
 
   it('create data request should work correctly', async () => {
     //arrange
-    const fileName = randomUUID();
+    const fileName = '' + new Date().getTime();
 
     //act
     await client.dataRequest.add(buildTestDataRequest(fileName));
@@ -137,7 +136,7 @@ describe('Data request management', () => {
 
   it('delete data request should work correctly', async () => {
     //arrange
-    const fileName = randomUUID();
+    const fileName = '' + new Date().getTime();
     await createTestDataRequest(fileName);
 
     //assert
@@ -158,7 +157,7 @@ describe('Data request management', () => {
     await checkAvailableTokens();
 
     //arrange
-    const fileName = randomUUID();
+    const fileName = '' + new Date().getTime();
     const dataRequest = await createTestDataRequest(fileName);
 
     //act
