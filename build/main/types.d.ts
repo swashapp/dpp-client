@@ -73,7 +73,7 @@ export interface DataRequestDetails {
     fileName: string;
     requestDate: number;
 }
-export declare type AuthConfig = {
+export type AuthConfig = {
     serverURL?: string;
     session?: {
         token: string;
