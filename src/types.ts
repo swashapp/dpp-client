@@ -32,7 +32,7 @@ export interface AuthWeb3Config {
 
 export interface AuthTokenConfig {
   token: string;
-  onExpired: () => void;
+  onExpired?: () => void;
 }
 
 export interface dppClientOptions {
@@ -76,6 +76,7 @@ export interface DataRequest {
   productType?: string;
   requestJob?: RequestJob;
 }
+
 export class DataRequestCalculateDto {
   id: string;
 }

@@ -26,7 +26,7 @@ export interface AuthWeb3Config {
 }
 export interface AuthTokenConfig {
     token: string;
-    onExpired: () => void;
+    onExpired?: () => void;
 }
 export interface dppClientOptions {
     host?: string;

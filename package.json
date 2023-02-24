@@ -13,7 +13,8 @@
   "type": "commonjs",
   "scripts": {
     "test": "jest",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
   },
   "files": [
     "build/main/*",
@@ -38,12 +39,15 @@
     "@typescript-eslint/eslint-plugin": "4.15.2",
     "@typescript-eslint/parser": "4.15.2",
     "@uniswap/router-sdk": "1.0.5",
+    "jest": "26.6.3",
+    "swash-order-router": "github:swashapp/smart-order-router#e7fa858daa3ed19d7a21ef90d58cc7c5fc71b506",
+    "ts-jest": "26.5.2",
+    "eslint": "7.20.0",
+    "prettier": "2.2.1",
     "eslint-config-prettier": "8.1.0",
     "eslint-plugin-import": "2.24.0",
     "eslint-plugin-prettier": "3.3.1",
-    "jest": "26.6.3",
-    "swash-order-router": "github:swashapp/smart-order-router#e7fa858daa3ed19d7a21ef90d58cc7c5fc71b506",
-    "ts-jest": "26.5.2"
+    "eslint-plugin-unused-imports": "1.1.1"
   },
   "jest": {
     "moduleFileExtensions": [

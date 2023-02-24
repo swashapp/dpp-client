@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "target": "ES5",
+
     "declaration": true,
     "removeComments": true,
     "skipLibCheck": true,
