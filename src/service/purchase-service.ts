@@ -1,3 +1,4 @@
+import { BigNumber } from '@ethersproject/bignumber';
 import { Contract } from '@ethersproject/contracts';
 import { parseEther } from '@ethersproject/units';
 import { Protocol } from '@uniswap/router-sdk';
@@ -163,6 +164,17 @@ export class Purchase {
 
   public async request(params: PurchaseParams, token: TokenInfo): Promise<any> {
     const routePath = await this.getRoutePath(token, params.price);
+    const gas: BigNumber = await this.purchaseContract.estimateGas.buyDataProductWithUniswapEth(
+      {
+        requestHash: params.requestHash,
+        time: params.time,
+        price: parseEther(params.price.toString()),
+        productType: params.productType,
+      },
+      params.signature,
+      params.signer,
+      routePath,
+    );
     if (token.isNative) {
       return await this.purchaseContract.buyDataProductWithUniswapEth(
         {
@@ -174,7 +186,7 @@ export class Purchase {
         params.signature,
         params.signer,
         routePath,
-        { gasLimit: 5000000 },
+        { gasLimit: gas.mul(120).div(100) },
       );
     } else {
       return await this.purchaseContract.buyDataProductWithUniswapErc20(
@@ -188,7 +200,7 @@ export class Purchase {
         params.signer,
         token.tokenName,
         routePath,
-        { gasLimit: 5000000 },
+        { gasLimit: gas.mul(120).div(100) },
       );
     }
   }
