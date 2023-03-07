@@ -73,11 +73,11 @@ Running build command will compile, optimize and minify the source code and will
 
 ## Client Creation
 
-When you want to use SDK you have to create new instance of DataProviderClient. As you know this client helps you order your data requests, and the requests have to be validated and authenticated, So you have to define your authentication mechanisem to communicate with Swash stack.
+When you want to use the SDK, you have to create a new instance of the DataProviderClient. As you know this client helps you order your data requests, and the requests have to be validated and authenticated, So you have to define your authentication mechanisem to communicate with Swash stack.
 
 ### Private Key
 
-If you have an valid ethereum account, then Its private key could be used for authentication.
+If you have a valid ethereum account, then Its private key could be used for authentication.
 To prepare your desire data, your account is in charge of paying data fee, therefore you have to define related provider.
 
 Authentication with private key:
@@ -291,12 +291,15 @@ Let's start with an example:
 
 In this JSON, the parameter fields contain this information:
 
+- fromDate determine the data that generated after this date
+- toDate determine the data that generated before this date  
 - dataType that determines which type of data user wants and must be one of these values: VISITATION, SEARCH_REQUEST, SEARCH_RESULT, SHOPPING
 - repeatType If user want to get the data only one time this field must have ONCE , and the other values must be WEEKLY, MONTHLY or DAILY that means this data must be generated each week or each month or each day
+- orderBy is optional and is used for grouping conditions it get an array of column names
+- sortBy is optional and is used for sorting conditions it get an array of sort objects that have sort column name for its field value and "asc" or "desc" for its sortMod value.
 - selectedDpFields is an array of acceptable column name based on repeatType. You can call loadDataProductByName function and pass the repeatType to it and read the dataDictionaries fields to see the name and the other details of all acceptable columns of this dataType.
 - filterCondition you can see this link to know how to create filter query based on your data columns: [QueryBuilderModel](https://react-querybuilder.js.org/docs/api/querybuilder) to find out the acceptable value for each column you can call the getAcceptedValues function and send the column name to it and get an array as a result.
 
-#Requirement before using
 
 # Copyright
 
