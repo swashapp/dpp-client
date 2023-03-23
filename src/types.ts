@@ -103,14 +103,15 @@ export interface PurchaseConfig {
   networkID: string;
 }
 
-export interface PurchaseParams {
-  requestHash: string;
-  signature: string;
-  time: string;
-  productType: string;
-  price: number;
-  signer: string;
-}
+// export interface PurchaseParams {
+//   id: string;
+//   requestHash: string;
+//   signature: string;
+//   time: string;
+//   productType: string;
+//   price: number;
+//   signer: string;
+// }
 
 export class SignedDataRequest {
   dataRequestId: string;
