@@ -1,10 +1,10 @@
-import { BigNumber } from '@ethersproject/bignumber';
 import { Contract } from '@ethersproject/contracts';
 import { parseEther } from '@ethersproject/units';
 import { Protocol } from '@uniswap/router-sdk';
 import { Token, TradeType } from '@uniswap/sdk-core';
 
-import { providers, Signer } from 'ethers';
+import { BigNumber, providers, Signer } from 'ethers';
+
 import {
   AlphaRouter,
   CurrencyAmount,
@@ -19,11 +19,12 @@ import {
   PURCHASE_CONTRACT_ADDRESS,
   SWASH_TOKEN_ADDRESS,
 } from '../constants/purchase-config';
-import { PurchaseParams, TokenInfo } from '../types';
+import { dppClientEmitter } from '../events';
+import { SignedDataRequest, TokenInfo } from '../types';
 
 export class Purchase {
   private purchaseContract: Contract;
-  private readonly networkID: string;
+  public readonly networkID: string;
   private readonly provider: providers.BaseProvider;
   private readonly signer: Signer;
 
@@ -104,7 +105,7 @@ export class Purchase {
     }
   }
 
-  private async getRoutePath(
+  public async getRoutePath(
     token: TokenInfo,
     priceInDollar: number,
   ): Promise<Array<string>> {
@@ -114,7 +115,7 @@ export class Purchase {
     if (token.isSwash) {
       return [token.tokenAddress, token.tokenAddress];
     }
-    let tokenOut;
+    let tokenOut: Token;
 
     if (token.isNative) {
       tokenOut = WRAPPED_NATIVE_CURRENCY[Number(this.networkID)];
@@ -162,19 +163,52 @@ export class Purchase {
     return paths;
   }
 
-  public async request(params: PurchaseParams, token: TokenInfo): Promise<any> {
-    const routePath = await this.getRoutePath(token, params.price);
-    const gas: BigNumber = await this.purchaseContract.estimateGas.buyDataProductWithUniswapEth(
-      {
-        requestHash: params.requestHash,
-        time: params.time,
-        price: parseEther(params.price.toString()),
-        productType: params.productType,
-      },
-      params.signature,
-      params.signer,
-      routePath,
-    );
+  public async estimateGas(
+    params: SignedDataRequest,
+    token: TokenInfo,
+    routePath: string[],
+  ): Promise<any> {
+    let gas: BigNumber = BigNumber.from(3000000);
+    try {
+      if (token.isNative) {
+        gas = await this.purchaseContract.estimateGas.buyDataProductWithUniswapEth(
+          {
+            requestHash: params.requestHash,
+            time: params.time,
+            price: parseEther(params.price.toString()),
+            productType: params.productType,
+          },
+          params.signature,
+          params.signer,
+          routePath,
+        );
+      } else {
+        gas = await this.purchaseContract.estimateGas.buyDataProductWithUniswapErc20(
+          {
+            requestHash: params.requestHash,
+            time: params.time,
+            price: parseEther(params.price.toString()),
+            productType: params.productType,
+          },
+          params.signature,
+          params.signer,
+          token.tokenName,
+          routePath,
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      dppClientEmitter.emit('warning', err.reason || err.error?.message);
+    }
+    return gas.mul(120).div(100);
+  }
+
+  public async request(
+    params: SignedDataRequest,
+    token: TokenInfo,
+    routePath: string[],
+    gasLimit: BigNumber,
+  ): Promise<any> {
     if (token.isNative) {
       return await this.purchaseContract.buyDataProductWithUniswapEth(
         {
@@ -186,7 +220,7 @@ export class Purchase {
         params.signature,
         params.signer,
         routePath,
-        { gasLimit: gas.mul(120).div(100) },
+        { gasLimit },
       );
     } else {
       return await this.purchaseContract.buyDataProductWithUniswapErc20(
@@ -200,7 +234,7 @@ export class Purchase {
         params.signer,
         token.tokenName,
         routePath,
-        { gasLimit: gas.mul(120).div(100) },
+        { gasLimit },
       );
     }
   }
