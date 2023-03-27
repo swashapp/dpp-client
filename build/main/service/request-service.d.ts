@@ -29,6 +29,6 @@ export declare abstract class Request {
     DELETE<Type>(api: string, params?: any): Promise<Type>;
     POST<Type>(api: string, body?: any): Promise<Type>;
     PUT<Type>(api: string, body?: any): Promise<Type>;
-    DOWNLOAD<Type>(api: string, params?: any): Promise<any>;
+    DOWNLOAD(api: string, params?: any): Promise<any>;
     POSTFile<Type>(api: string, file: File | Buffer, fileName: string): Promise<Type>;
 }

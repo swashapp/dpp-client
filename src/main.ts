@@ -68,12 +68,36 @@ export class DataProviderClient {
           const signedDataRequestDto = await sdk.sign(id);
 
           try {
-            const tx = await purchase.request(signedDataRequestDto, token);
-            if (tx) await tx.wait();
-            else throw Error('Failed to purchase');
+            const routePath = await purchase.getRoutePath(
+              token,
+              signedDataRequestDto.price,
+            );
+            const gasLimit = await purchase.estimateGas(
+              signedDataRequestDto,
+              token,
+              routePath,
+            );
+            const tx = await purchase.request(
+              signedDataRequestDto,
+              token,
+              routePath,
+              gasLimit,
+            );
+            if (tx) {
+              console.log(tx);
+              await this.request.PUT(URI.DATA_REQUEST, {
+                id: signedDataRequestDto.dataRequestId,
+                networkId: purchase.networkID,
+                txId: tx.hash,
+              });
+              await tx.wait(1);
+            } else {
+              throw Error('Failed to purchase');
+            }
           } catch (err) {
             console.log(err);
-            throw Error('Failed to purchase');
+            const reason = err.reason || err.error?.message;
+            throw Error(reason || 'Failed to purchase');
           }
 
           await sdk.purchased(id);
