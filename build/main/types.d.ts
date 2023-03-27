@@ -87,14 +87,6 @@ export interface PurchaseConfig {
     tokenName: string;
     networkID: string;
 }
-export interface PurchaseParams {
-    requestHash: string;
-    signature: string;
-    time: string;
-    productType: string;
-    price: number;
-    signer: string;
-}
 export declare class SignedDataRequest {
     dataRequestId: string;
     requestHash: string;

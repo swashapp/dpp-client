@@ -129,7 +129,7 @@ export abstract class Request {
     return this.send<Type>(api, 'PUT', body);
   }
 
-  public async DOWNLOAD<Type>(api: string, params?: any): Promise<any> {
+  public async DOWNLOAD(api: string, params?: any): Promise<any> {
     const req: RequestInit = await this.createRequest('GET');
     const query = params ? `?${encodeQueryString(params)}` : '';
     const url = this.getServerApiURL() + api + query;

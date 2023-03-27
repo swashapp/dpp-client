@@ -1,8 +1,8 @@
-import { providers, Signer } from 'ethers';
-import { PurchaseParams, TokenInfo } from '../types';
+import { BigNumber, providers, Signer } from 'ethers';
+import { SignedDataRequest, TokenInfo } from '../types';
 export declare class Purchase {
     private purchaseContract;
-    private readonly networkID;
+    readonly networkID: string;
     private readonly provider;
     private readonly signer;
     private readonly SWASH_TOKEN;
@@ -10,6 +10,7 @@ export declare class Purchase {
     getToken(tokenName: string): Promise<TokenInfo>;
     private needToBeApproved;
     approve(token: TokenInfo, account: string | null | undefined): Promise<any>;
-    private getRoutePath;
-    request(params: PurchaseParams, token: TokenInfo): Promise<any>;
+    getRoutePath(token: TokenInfo, priceInDollar: number): Promise<Array<string>>;
+    estimateGas(params: SignedDataRequest, token: TokenInfo, routePath: string[]): Promise<any>;
+    request(params: SignedDataRequest, token: TokenInfo, routePath: string[], gasLimit: BigNumber): Promise<any>;
 }
