@@ -54,6 +54,12 @@ class DataProviderClient {
                     get: () => {
                         return sdk.request.GET(service_1.URI.DATA_REQUEST, { id });
                     },
+                    downloadSample: async () => {
+                        const res = await sdk.request.DOWNLOAD(`${service_1.URI.DATA_REQUEST}/sample-data`, {
+                            id,
+                        });
+                        return await res.blob();
+                    },
                     getPrice: () => {
                         return sdk.request.GET(service_1.URI.DATA_REQUEST + '/price', {
                             id,

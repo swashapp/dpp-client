@@ -128,6 +128,7 @@ export interface DataReqFN {
   delete: () => Promise<DataRequest>;
   get: () => Promise<DataRequest>;
   getPrice: () => Promise<{ title: string; price: number }[]>;
+  downloadSample: () => Promise<Blob>;
 }
 
 export interface DataReq {
