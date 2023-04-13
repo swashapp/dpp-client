@@ -1,6 +1,6 @@
 {
   "name": "dpp-client",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "",
   "private": false,
   "license": "MIT",
@@ -40,7 +40,7 @@
     "@typescript-eslint/parser": "4.15.2",
     "@uniswap/router-sdk": "1.0.5",
     "jest": "26.6.3",
-    "swash-order-router": "github:swashapp/smart-order-router#e7fa858daa3ed19d7a21ef90d58cc7c5fc71b506",
+    "swash-order-router": "github:swashapp/smart-order-router#28badba398dcc987c205898454f23f54e440a2c4",
     "ts-jest": "26.5.2",
     "eslint": "7.20.0",
     "prettier": "2.2.1",
