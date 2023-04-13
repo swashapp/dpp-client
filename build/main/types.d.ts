@@ -104,6 +104,7 @@ export interface DataReqFN {
         title: string;
         price: number;
     }[]>;
+    downloadSample: () => Promise<Blob>;
 }
 export interface DataReq {
     getAll: () => Promise<DataRequest[]>;

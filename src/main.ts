@@ -110,7 +110,15 @@ export class DataProviderClient {
         get: (): Promise<DataRequest> => {
           return sdk.request.GET(URI.DATA_REQUEST, { id });
         },
-
+        downloadSample: async (): Promise<Blob> => {
+          const res = await sdk.request.DOWNLOAD(
+            `${URI.DATA_REQUEST}/sample-data`,
+            {
+              id,
+            },
+          );
+          return await res.blob();
+        },
         getPrice: (): Promise<{ title: string; price: number }[]> => {
           return sdk.request.GET(URI.DATA_REQUEST + '/price', {
             id,
