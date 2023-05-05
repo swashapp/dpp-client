@@ -10,7 +10,7 @@
 
 # Swash Data Product Provider Client
 
-Swash Data Product Provider SDK is a simple Typescript project that helps the users to create a data request, check the status of the request, buy a data and download the data with this SDK in their projects without any UI.
+Swash Data Product Provider SDK is a simple typescript project that helps the users to create a data request, check the status of the request, buy a data and download the data with this SDK in their projects without any UI.
 
 # Issues & Questions
 
@@ -125,7 +125,7 @@ const dppClient = new DataProviderClient({
 
 ## Data Requests
 
-Data prepration process is introduced by data request. You can define various filters to reach your desire data by adding a data request.
+Data preparation process is introduced by data request. You can define various filters to reach your desire data by adding a data request.
 
 | Method | Description                         |
 | :----- | :---------------------------------- |
@@ -172,7 +172,7 @@ dppClient.dataLake.getSchema(`the-name-of-data-lake`)
 
 | Name              | Description                                                                                    | Input Parameters                                                                                                 | Output Result                    |
 | ----------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------- |
-| add               | Send Data Request To Data Product Provider Server                                              | DataRequestDetails                                                                                               | DataRequest                      |
+| add               | Send Data Request to the data product provider backend                                         | DataRequestDetails                                                                                               | DataRequest                      |
 | provide           | Purchase data request and prepare                                                              | PurchaseConfig                                                                                                   |                                  |
 | delete            | Delete a data request                                                                          |                                                                                                                  |                                  |
 | getAll            | List all data requests of user                                                                 |                                                                                                                  | DataRequest[]                    |
@@ -198,7 +198,7 @@ dppClient.dataLake.getSchema(`the-name-of-data-lake`)
 | userAccountAddress |                                               The wallet address of the user                                               |           string            |
 |    requestHash     | The hash of data request that is readonly field and can be used for purchasing data and will be created by the dpp backend |           string            |
 |      fileName      |                                    The file name that data must be saved with this name                                    |           string            |
-|    requestDate     |                                                  The Date Of The Request                                                   |           number            |
+|    requestDate     |                                                  The date of the request                                                   |           number            |
 |    productType     |           The name of the product tha is used for purchasing and is fix and its value is "data-product-provider"           |           string            |
 |       status       |                                                 The status of the request                                                  | Enum: DRAFT, PENDING, PAYED |
 |     requestJob     |                                                                                                                            |         RequestJob          |
@@ -211,13 +211,24 @@ dppClient.dataLake.getSchema(`the-name-of-data-lake`)
 |    repeatType    |                 |      string       |
 | selectedDbFields |                 |     string[]      |
 | filterCondition  |                 | QueryBuilderModel |
+| groupBy          |                 |    string[]       |
+| orderBy          |                 | OrderBy           |   
+
+## **OrderBy**
+|  **Field Name**  | **Description** |     **Type**      |
+| :--------------: | :-------------: | :---------------: |
+|     field        |                 |      string       |
+|    sortMode      |    asc or desc  |      string       |
+
+
+
 
 ## **RequestJob**
 
 |   **Field Name**    |             **Description**              |                **Type**                |
 | :-----------------: | :--------------------------------------: | :------------------------------------: |
 |         id          |                Identifier                |                 string                 |
-|       status        |          The Status Of The Job           | Enum: DRAFT, STARTED, FAILED, FINISHED |
+|       status        |          The status of the job           | Enum: DRAFT, STARTED, FAILED, FINISHED |
 |     result_path     |        The file path of the data         |                 string                 |
 |    repeat_style     |                                          |   ENUM: WEEKLY, MONTHLY, DAILY, ONCE   |
 | last_execution_time |                                          |                  date                  |
@@ -269,6 +280,7 @@ Let's start with an example:
       "Country",
       "Gender"
     ],
+    "orderBy": [{"field": "Timestamp", "sortMod": "desc"}],
     "filterCondition": {
       "combinator": "and",
       "rules": [
@@ -297,7 +309,7 @@ In this JSON, the parameter fields contain this information:
 - repeatType If user want to get the data only one time this field must have ONCE , and the other values must be WEEKLY, MONTHLY or DAILY that means this data must be generated each week or each month or each day
 - orderBy is optional and is used for grouping conditions it get an array of column names
 - sortBy is optional and is used for sorting conditions it get an array of sort objects that have sort column name for its field value and "asc" or "desc" for its sortMod value.
-- selectedDpFields is an array of acceptable column name based on repeatType. You can call loadDataProductByName function and pass the repeatType to it and read the dataDictionaries fields to see the name and the other details of all acceptable columns of this dataType.
+- selectedDpFields is an array of acceptable column name based on repeatType. You can call loadDataProductByName function and pass the repeatType to it and read the dataDictionaries fields to see the name, and the other details of all acceptable columns of this dataType.
 - filterCondition you can see this link to know how to create filter query based on your data columns: [QueryBuilderModel](https://react-querybuilder.js.org/docs/api/querybuilder) to find out the acceptable value for each column you can call the getAcceptedValues function and send the column name to it and get an array as a result.
 
 
