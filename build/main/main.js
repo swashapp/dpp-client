@@ -46,7 +46,6 @@ class DataProviderClient {
                             const reason = err.reason || err.error?.message;
                             throw Error(reason || 'Failed to purchase');
                         }
-                        await sdk.purchased(id);
                     },
                     delete: () => {
                         return sdk.request.DELETE(service_1.URI.DATA_REQUEST, { id });
@@ -92,9 +91,6 @@ class DataProviderClient {
     }
     sign(id) {
         return this.request.POST(service_1.URI.DATA_REQUEST + '/sign', { id });
-    }
-    purchased(id) {
-        return this.request.POST(service_1.URI.DATA_REQUEST + '/purchased', { id });
     }
 }
 exports.DataProviderClient = DataProviderClient;

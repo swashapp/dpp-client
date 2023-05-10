@@ -51,10 +51,10 @@ class Purchase {
         }
     }
     async getRoutePath(token, priceInDollar) {
-        const priceInSwash = await this.purchaseContract.priceInSwash((0, units_1.parseEther)(priceInDollar.toString()));
         if (token.isSwash) {
             return [token.tokenAddress, token.tokenAddress];
         }
+        const priceInSwash = await this.purchaseContract.priceInSwash((0, units_1.parseEther)(priceInDollar.toString()));
         let tokenOut;
         if (token.isNative) {
             tokenOut = swash_order_router_1.WRAPPED_NATIVE_CURRENCY[Number(this.networkID)];
