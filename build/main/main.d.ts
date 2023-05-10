@@ -7,7 +7,6 @@ export declare class DataProviderClient {
     });
     getSignature(): Promise<SignatureOBJ>;
     private sign;
-    private purchased;
     dataRequest: DataReq;
     dataLake: DataLake;
 }

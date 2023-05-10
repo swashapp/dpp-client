@@ -109,12 +109,14 @@ export class Purchase {
     token: TokenInfo,
     priceInDollar: number,
   ): Promise<Array<string>> {
-    const priceInSwash = await this.purchaseContract.priceInSwash(
-      parseEther(priceInDollar.toString()),
-    );
     if (token.isSwash) {
       return [token.tokenAddress, token.tokenAddress];
     }
+
+    const priceInSwash = await this.purchaseContract.priceInSwash(
+      parseEther(priceInDollar.toString()),
+    );
+
     let tokenOut: Token;
 
     if (token.isNative) {

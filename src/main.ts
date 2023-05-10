@@ -36,10 +36,6 @@ export class DataProviderClient {
     return this.request.POST(URI.DATA_REQUEST + '/sign', { id });
   }
 
-  private purchased(id: string): Promise<string[]> {
-    return this.request.POST(URI.DATA_REQUEST + '/purchased', { id });
-  }
-
   public dataRequest: DataReq = {
     getAll: (): Promise<DataRequest[]> =>
       this.request.GET(URI.DATA_REQUEST + '/list'),
@@ -99,8 +95,6 @@ export class DataProviderClient {
             const reason = err.reason || err.error?.message;
             throw Error(reason || 'Failed to purchase');
           }
-
-          await sdk.purchased(id);
         },
 
         delete: (): Promise<DataRequest> => {
