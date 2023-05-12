@@ -86,7 +86,7 @@ class Purchase {
             if (token.isNative) {
                 gas = await this.purchaseContract.estimateGas.buyDataProductWithUniswapEth({
                     requestHash: params.requestHash,
-                    time: params.time,
+                    timeStamp: params.time,
                     price: (0, units_1.parseEther)(params.price.toString()),
                     productType: params.productType,
                 }, params.signature, params.signer, routePath);
@@ -94,7 +94,7 @@ class Purchase {
             else {
                 gas = await this.purchaseContract.estimateGas.buyDataProductWithUniswapErc20({
                     requestHash: params.requestHash,
-                    time: params.time,
+                    timeStamp: params.time,
                     price: (0, units_1.parseEther)(params.price.toString()),
                     productType: params.productType,
                 }, params.signature, params.signer, token.tokenName, routePath);
@@ -110,7 +110,7 @@ class Purchase {
         if (token.isNative) {
             return await this.purchaseContract.buyDataProductWithUniswapEth({
                 requestHash: params.requestHash,
-                time: params.time,
+                timeStamp: params.time,
                 price: (0, units_1.parseEther)(params.price.toString()),
                 productType: params.productType,
             }, params.signature, params.signer, routePath, { gasLimit });
@@ -118,7 +118,7 @@ class Purchase {
         else {
             return await this.purchaseContract.buyDataProductWithUniswapErc20({
                 requestHash: params.requestHash,
-                time: params.time,
+                timeStamp: params.time,
                 price: (0, units_1.parseEther)(params.price.toString()),
                 productType: params.productType,
             }, params.signature, params.signer, token.tokenName, routePath, { gasLimit });
