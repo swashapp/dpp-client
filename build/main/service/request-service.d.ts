@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { providers, Signer } from 'ethers';
 import { AuthSessionConfig, dppClientOptions, SignatureOBJ } from '../types';
 export declare enum URI {
