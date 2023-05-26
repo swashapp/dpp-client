@@ -23,7 +23,7 @@ class DataProviderClient {
                         const purchase = new service_1.Purchase(purchaseConfig.networkID, provider, signer);
                         const token = await purchase.getToken(purchaseConfig.tokenName);
                         await purchase.approve(token, account);
-                        const signedDataRequestDto = await sdk.sign(id);
+                        const signedDataRequestDto = await sdk.sign(id, Number(purchaseConfig.networkID));
                         try {
                             const routePath = await purchase.getRoutePath(token, signedDataRequestDto.price);
                             const gasLimit = await purchase.estimateGas(signedDataRequestDto, token, routePath);
@@ -32,7 +32,7 @@ class DataProviderClient {
                                 console.log(tx);
                                 await this.request.PUT(service_1.URI.DATA_REQUEST, {
                                     id: signedDataRequestDto.dataRequestId,
-                                    networkId: purchase.networkID,
+                                    networkId: purchaseConfig.networkID,
                                     txId: tx.hash,
                                 });
                                 await tx.wait(1);
@@ -89,8 +89,8 @@ class DataProviderClient {
     getSignature() {
         return this.request.getSignatureObj();
     }
-    sign(id) {
-        return this.request.POST(service_1.URI.DATA_REQUEST + '/sign', { id });
+    sign(id, network) {
+        return this.request.POST(service_1.URI.DATA_REQUEST + '/sign', { id, network });
     }
 }
 exports.DataProviderClient = DataProviderClient;

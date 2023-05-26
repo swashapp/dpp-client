@@ -39,7 +39,7 @@ describe('Data request management', () => {
     //arrange
     const purchase = new Purchase(networkID, provider, wallet);
     const token = await purchase.getToken(tokenName);
-    const contract = new Contract(token.tokenAddress, ERC20_ABI, wallet);
+    const contract = new Contract(token.token.address, ERC20_ABI, wallet);
 
     //act
     const balanceInWei = (await contract.balanceOf(wallet.address)).toString();

@@ -1,5 +1,6 @@
 import { providers } from 'ethers';
 import Web3 from 'web3';
+import { Token } from '@uniswap/sdk-core';
 
 export interface AuthSessionConfig {
   token?: string;
@@ -13,10 +14,10 @@ export interface SignatureOBJ {
 }
 
 export interface TokenInfo {
-  tokenName: string;
-  tokenAddress: string;
+  token: Token;
   isNative: boolean;
   isSwash: boolean;
+  baseTokenDecimals: number;
 }
 
 export interface AuthWalletConfig {

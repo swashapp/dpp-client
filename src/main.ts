@@ -32,8 +32,8 @@ export class DataProviderClient {
     return this.request.getSignatureObj();
   }
 
-  private sign(id: string): Promise<SignedDataRequest> {
-    return this.request.POST(URI.DATA_REQUEST + '/sign', { id });
+  private sign(id: string, network: number): Promise<SignedDataRequest> {
+    return this.request.POST(URI.DATA_REQUEST + '/sign', { id, network });
   }
 
   public dataRequest: DataReq = {
@@ -61,7 +61,10 @@ export class DataProviderClient {
           );
           const token = await purchase.getToken(purchaseConfig.tokenName);
           await purchase.approve(token, account);
-          const signedDataRequestDto = await sdk.sign(id);
+          const signedDataRequestDto = await sdk.sign(
+            id,
+            Number(purchaseConfig.networkID),
+          );
 
           try {
             const routePath = await purchase.getRoutePath(
@@ -83,7 +86,7 @@ export class DataProviderClient {
               console.log(tx);
               await this.request.PUT(URI.DATA_REQUEST, {
                 id: signedDataRequestDto.dataRequestId,
-                networkId: purchase.networkID,
+                networkId: purchaseConfig.networkID,
                 txId: tx.hash,
               });
               await tx.wait(1);
