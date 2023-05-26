@@ -54,7 +54,7 @@ export class Web3Request extends Request {
   }
 
   public getProvider(): providers.BaseProvider {
-    return this.config.web3.givenProvider;
+    return this.provider;
   }
 
   public getSigner(): Signer {

@@ -36,7 +36,7 @@ class Web3Request extends request_service_1.Request {
         return await this.signWith(signMessage);
     }
     getProvider() {
-        return this.config.web3.givenProvider;
+        return this.provider;
     }
     getSigner() {
         return this.provider.getSigner();
