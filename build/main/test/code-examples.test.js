@@ -54,7 +54,7 @@ describe('Data request management', () => {
     const checkAvailableTokens = async () => {
         const purchase = new service_1.Purchase(networkID, provider, wallet);
         const token = await purchase.getToken(tokenName);
-        const contract = new ethers_1.Contract(token.tokenAddress, constants_1.ERC20_ABI, wallet);
+        const contract = new ethers_1.Contract(token.token.address, constants_1.ERC20_ABI, wallet);
         const balanceInWei = (await contract.balanceOf(wallet.address)).toString();
         const balance = (0, utils_1.formatEther)(balanceInWei);
         expect(Number(balance)).toBeGreaterThan(100);
