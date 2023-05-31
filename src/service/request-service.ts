@@ -90,7 +90,8 @@ export abstract class Request {
         message = 'Session expired';
       }
     } catch (err) {
-      throw Error(`Failed to fetch ${url}`);
+      console.log(err);
+      throw Error(`Failed to fetch data`);
     }
 
     throw Error(message);
