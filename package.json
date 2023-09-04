@@ -1,8 +1,11 @@
 {
-  "name": "dpp-client",
+  "name": "@swashapp/dpp-client",
   "version": "0.0.0-semantic-release",
   "description": "",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
